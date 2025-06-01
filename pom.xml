@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>cc.suvankar</groupId>
-	<artifactId>free-dictionary-api</artifactId>
+	<artifactId>free-dictionary-rest-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>free-dictionary-api</name>
+	<name>free-dictionary-rest-api</name>
 	<description>Dictionary API</description>
 	<properties>
 		<java.version>17</java.version>

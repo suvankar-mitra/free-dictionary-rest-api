@@ -1,9 +1,9 @@
 <configuration>
     <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/free-dictionary-api.log</file>
+        <file>logs/free-dictionary-rest-api.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- Roll the log file daily -->
-            <fileNamePattern>logs/free-dictionary-api.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+            <fileNamePattern>logs/free-dictionary-rest-api.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
             <!-- Keep 30 days of logs -->
             <maxHistory>30</maxHistory>
             <!-- Compress old log files -->

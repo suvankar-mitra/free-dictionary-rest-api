@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# filepath: free-dictionary-api/build-and-containerize.sh
+# filepath: free-dictionary-rest-api/build-and-containerize.sh
 
 # Exit immediately if a command exits with a non-zero status
 set -e
 
 # Define variables
-APP_NAME="free-dictionary-api"
+APP_NAME="free-dictionary-rest-api"
 
 # Step 1: Clean and build the application JAR
 if [ ! -f "./mvnw" ]; then

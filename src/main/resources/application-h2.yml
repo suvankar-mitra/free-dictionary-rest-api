@@ -1,7 +1,7 @@
 # Free Dictionary API Configuration
 spring:
   application:
-    name: free-dictionary-api
+    name: free-dictionary-rest-api
   jpa:
     open-in-view: false
   h2:

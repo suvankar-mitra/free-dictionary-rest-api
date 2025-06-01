@@ -20,11 +20,11 @@ public class ApiAttributionDTO implements Serializable {
     private final String attributionText;
 
     private ApiAttributionDTO() {
-        this.name = "free-dictionary-api";
+        this.name = "free-dictionary-rest-api";
         this.url = "api.suvankar.cc";
         this.license = "CC BY-SA 4.0";
         this.attributionRequired = true;
-        this.attributionText = "Data provided by free-dictionary-api (https://api.suvankar.cc) and Wiktionary (https://en.wiktionary.org), licensed under CC BY-SA 4.0";
+        this.attributionText = "Data provided by free-dictionary-rest-api (https://api.suvankar.cc) and Wiktionary (https://en.wiktionary.org), licensed under CC BY-SA 4.0";
     }
 
     public static ApiAttributionDTO getInstance() {
