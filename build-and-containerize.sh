@@ -13,10 +13,6 @@ if [ ! -f "./mvnw" ]; then
   echo "Error: Maven wrapper (mvnw) not found. Please ensure you are in the correct directory."
   exit 1
 fi
-if [ ! -d "target" ]; then
-  echo "Error: Target directory not found. Please ensure the build has been run before."
-  exit 1
-fi
 echo "Building the application JAR..."
 ./mvnw clean package
 
