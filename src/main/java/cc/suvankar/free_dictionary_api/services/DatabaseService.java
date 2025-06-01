@@ -19,9 +19,11 @@ public class DatabaseService {
     private static final Logger LOG = Logger.getLogger(DatabaseService.class.getName());
 
     private final WordEntryRepository wordEntryRepository;
+    private final WordEntryMapper wordEntryMapper;
 
-    public DatabaseService(WordEntryRepository wordEntryRepository) {
+    public DatabaseService(WordEntryRepository wordEntryRepository, WordEntryMapper wordEntryMapper) {
         this.wordEntryRepository = wordEntryRepository;
+        this.wordEntryMapper = wordEntryMapper;
     }
 
     @Transactional
@@ -41,7 +43,7 @@ public class DatabaseService {
         }
 
         LOG.info("Found " + entities.size() + " WordEntries for word: " + normalizedWord);
-        return WordEntryMapper.entityToDto(normalizedWord, langCode, entities);
+        return wordEntryMapper.entityToDto(normalizedWord, langCode, entities);
     }
 
     public Page<String> getWordsPaginated(Pageable pageable) {
