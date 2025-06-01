@@ -1,0 +1,54 @@
+package cc.suvankar.free_dictionary_api.services;
+
+import java.util.List;
+import java.util.logging.Logger;
+
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
+import cc.suvankar.free_dictionary_api.entity.WordEntryEntity;
+import cc.suvankar.free_dictionary_api.mapper.WordEntryMapper;
+import cc.suvankar.free_dictionary_api.repository.WordEntryRepository;
+import jakarta.transaction.Transactional;
+
+@Service
+public class DatabaseService {
+    private static final Logger LOG = Logger.getLogger(DatabaseService.class.getName());
+
+    private final WordEntryRepository wordEntryRepository;
+
+    public DatabaseService(WordEntryRepository wordEntryRepository) {
+        this.wordEntryRepository = wordEntryRepository;
+    }
+
+    @Transactional
+    @Cacheable(value = "wordEntries", key = "#word + '_' + #langCode")
+    public WordEntryDTO getWordEntryByWord(final String word, final String langCode) {
+        if (word == null || word.isEmpty()) {
+            LOG.warning("Attempted to retrieve WordEntryDTO with a null or empty word");
+            return null;
+        }
+
+        final String normalizedWord = word.trim();
+
+        List<WordEntryEntity> entities = wordEntryRepository.findByWordAndLangCode(normalizedWord, langCode);
+        if (entities.isEmpty()) {
+            LOG.info("No WordEntries found for word: " + normalizedWord);
+            return null;
+        }
+
+        LOG.info("Found " + entities.size() + " WordEntries for word: " + normalizedWord);
+        return WordEntryMapper.entityToDto(normalizedWord, langCode, entities);
+    }
+
+    public Page<String> getWordsPaginated(Pageable pageable) {
+        return wordEntryRepository.findAllWords(pageable);
+    }
+
+    public Long getWordEntryCount() {
+        return wordEntryRepository.count();
+    }
+}

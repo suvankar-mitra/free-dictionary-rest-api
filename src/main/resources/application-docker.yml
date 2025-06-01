@@ -1,0 +1,42 @@
+# Free Dictionary API Configuration
+spring:
+  application:
+    name: free-dictionary-api
+  jpa:
+    open-in-view: false
+  cache:
+    type: redis
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+# Change the application port
+server:
+  port: 8800
+
+json:
+  data:
+    dir: ${JSON_DATA_DIR:./data}  # Directory for JSON data files
+
+# Logging configuration
+logging:
+  config: classpath:logback-spring.xml
+
+---
+# Postgres profile-specific properties
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: jdbc:postgresql://${SPRING_DATASOURCE_HOST}:${SPRING_DATASOURCE_PORT}/${SPRING_DATASOURCE_DB}
+    driverClassName: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update #create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect

@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:file:/tmp/free_dict.db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    # url: jdbc:h2:mem:dict_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: DICT_USER
+    password: 
+  jpa:
+    # database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update #create-drop
+  cache:
+    type: simple

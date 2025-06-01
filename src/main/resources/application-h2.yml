@@ -1,0 +1,37 @@
+# Free Dictionary API Configuration
+spring:
+  application:
+    name: free-dictionary-api
+  jpa:
+    open-in-view: false
+  h2:
+    console:
+      enabled: true  # Disable H2 console in production
+  cache:
+    type: simple # OR redis, then start redis in docker:  docker run -p 6379:6379 redis
+
+# Change the application port
+server:
+  port: 8800
+
+# Logging configuration
+logging:
+  config: classpath:logback-spring.xml
+
+---
+# H2 profile-specific properties
+spring:
+  config:
+    activate:
+      on-profile: h2
+  datasource:
+    url: jdbc:h2:file:/tmp/free_dict.db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    # url: jdbc:h2:mem:dict_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driverClassName: org.h2.Driver
+    username: DICT_USER
+    password: 
+  jpa:
+    # database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update #create-drop
+
