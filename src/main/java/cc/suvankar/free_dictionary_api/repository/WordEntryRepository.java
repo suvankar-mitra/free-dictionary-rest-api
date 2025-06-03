@@ -24,4 +24,7 @@ public interface WordEntryRepository extends JpaRepository<WordEntryEntity, Long
 
     @Query("SELECT DISTINCT w.word FROM WordEntryEntity w")
     Page<String> findAllWords(Pageable pageable);
+
+    @Query("SELECT DISTINCT w.word FROM WordEntryEntity w WHERE w.word LIKE CONCAT(:prefix, '%')")
+    List<String> findWordsByPrefix(String prefix, Pageable pageable);
 }

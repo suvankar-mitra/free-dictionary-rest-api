@@ -53,4 +53,12 @@ public class DatabaseService {
     public Long getWordEntryCount() {
         return wordEntryRepository.count();
     }
+
+    @Cacheable(value = "wordsStartingWith", key = "#filter + '_' + #limit.pageNumber + '_' + #limit.pageSize")
+    public List<String> getWordsStartingWith(String filter, Pageable limit) {
+        if (filter == null) {
+            filter = "";
+        }
+        return wordEntryRepository.findWordsByPrefix(filter, limit);
+    }
 }
