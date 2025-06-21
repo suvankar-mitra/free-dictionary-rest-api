@@ -59,6 +59,6 @@ public class DatabaseService {
         if (filter == null) {
             filter = "";
         }
-        return wordEntryRepository.findWordsByPrefix(filter, limit);
+        return wordEntryRepository.findWordsByPrefixIgnoreCase(filter, limit);
     }
 }
