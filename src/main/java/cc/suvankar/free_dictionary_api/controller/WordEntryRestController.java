@@ -1,6 +1,7 @@
 package cc.suvankar.free_dictionary_api.controller;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ import cc.suvankar.free_dictionary_api.services.OffensiveTermsProvider;
 @RestController
 @RequestMapping("/dictionaryapi/v1")
 public class WordEntryRestController {
+    private static final Logger LOG = Logger.getLogger(WordEntryRestController.class.getName());
+
     private final DatabaseService databaseService;
     private final OffensiveTermsProvider offensiveTermsProvider;
 
@@ -67,7 +70,11 @@ public class WordEntryRestController {
     @GetMapping("/translations/en/")
     public ResponseEntity<List<TranslationDTO>> getTranslations(@RequestParam("word") String word,
             @RequestParam("pos") String pos) {
+
+        LOG.info("Getting translations for " + word + ", " + pos);
         List<TranslationDTO> translationDTOs = databaseService.getWordTransaltions(word, pos);
+        LOG.info("Found " + translationDTOs.size() + " translations for " + word + ", " + pos);
+
         if (translationDTOs.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
