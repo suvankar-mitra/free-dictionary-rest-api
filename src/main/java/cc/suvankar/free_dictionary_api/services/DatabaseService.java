@@ -68,6 +68,7 @@ public class DatabaseService {
         return wordEntryRepository.findWordsByPrefixIgnoreCase(filter, limit);
     }
 
+    @Cacheable(value = "TranslationsByWordAndPos", key = "#word + '_' + #pos")
     public List<TranslationDTO> getWordTransaltions(String word, String pos) {
         List<TranslationEntity> translationEntities = wordEntryRepository.getTranslationsByWordAndPos(word, pos);
         if (translationEntities.isEmpty()) {
