@@ -8,8 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import cc.suvankar.free_dictionary_api.dto.TranslationDTO;
 import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
+import cc.suvankar.free_dictionary_api.entity.TranslationEntity;
 import cc.suvankar.free_dictionary_api.entity.WordEntryEntity;
+import cc.suvankar.free_dictionary_api.mapper.TranslationMapper;
 import cc.suvankar.free_dictionary_api.mapper.WordEntryMapper;
 import cc.suvankar.free_dictionary_api.repository.WordEntryRepository;
 import jakarta.transaction.Transactional;
@@ -20,10 +23,13 @@ public class DatabaseService {
 
     private final WordEntryRepository wordEntryRepository;
     private final WordEntryMapper wordEntryMapper;
+    private final TranslationMapper translationMapper;
 
-    public DatabaseService(WordEntryRepository wordEntryRepository, WordEntryMapper wordEntryMapper) {
+    public DatabaseService(WordEntryRepository wordEntryRepository, WordEntryMapper wordEntryMapper,
+            TranslationMapper translationMapper) {
         this.wordEntryRepository = wordEntryRepository;
         this.wordEntryMapper = wordEntryMapper;
+        this.translationMapper = translationMapper;
     }
 
     @Transactional
@@ -60,5 +66,14 @@ public class DatabaseService {
             filter = "";
         }
         return wordEntryRepository.findWordsByPrefixIgnoreCase(filter, limit);
+    }
+
+    public List<TranslationDTO> getWordTransaltions(String word, String pos) {
+        List<TranslationEntity> translationEntities = wordEntryRepository.getTranslationsByWordAndPos(word, pos);
+        if (translationEntities.isEmpty()) {
+            return List.of();
+        }
+
+        return translationEntities.stream().map(translationMapper::entityToDto).toList();
     }
 }

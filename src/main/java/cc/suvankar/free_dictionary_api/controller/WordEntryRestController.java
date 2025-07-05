@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cc.suvankar.free_dictionary_api.dto.TranslationDTO;
 import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
 import cc.suvankar.free_dictionary_api.services.DatabaseService;
 import cc.suvankar.free_dictionary_api.services.OffensiveTermsProvider;
@@ -61,5 +62,15 @@ public class WordEntryRestController {
         List<String> words = databaseService.getWordsStartingWith(filter, pageable);
 
         return ResponseEntity.ok(words);
+    }
+
+    @GetMapping("/translations/en/")
+    public ResponseEntity<List<TranslationDTO>> getTranslations(@RequestParam("word") String word,
+            @RequestParam("pos") String pos) {
+        List<TranslationDTO> translationDTOs = databaseService.getWordTransaltions(word, pos);
+        if (translationDTOs.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(translationDTOs);
     }
 }

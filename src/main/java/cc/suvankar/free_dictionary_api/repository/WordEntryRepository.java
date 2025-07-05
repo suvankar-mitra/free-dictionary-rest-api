@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import cc.suvankar.free_dictionary_api.entity.TranslationEntity;
 import cc.suvankar.free_dictionary_api.entity.WordEntryEntity;
 
 @Repository
@@ -30,4 +31,13 @@ public interface WordEntryRepository extends JpaRepository<WordEntryEntity, Long
 
     @Query("SELECT DISTINCT w.word FROM WordEntryEntity w WHERE LOWER(w.word) LIKE CONCAT(LOWER(:prefix), '%')")
     List<String> findWordsByPrefixIgnoreCase(String prefix, Pageable pageable);
+
+    @Query("""
+            SELECT t FROM WordEntryEntity we
+            JOIN we.senses s
+            JOIN s.translations t
+            WHERE we.word = :word
+            AND we.pos = :pos
+            """)
+    List<TranslationEntity> getTranslationsByWordAndPos(String word, String pos);
 }
