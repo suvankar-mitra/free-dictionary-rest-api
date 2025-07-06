@@ -60,7 +60,7 @@ public class WordEntryRestController {
         return ResponseEntity.ok(definition);
     }
 
-    @GetMapping("/words/en")
+    @GetMapping("/words/en/")
     public ResponseEntity<List<String>> getWordsStartingWith(
             @RequestParam("filter") String filter,
             @RequestParam(value = "page", defaultValue = "0") int page,

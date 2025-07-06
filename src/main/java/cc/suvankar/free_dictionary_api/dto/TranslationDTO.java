@@ -1,6 +1,7 @@
 package cc.suvankar.free_dictionary_api.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -17,7 +18,5 @@ public class TranslationDTO implements Serializable {
 
     private String lang;
     private String code;
-    private String sense;
-    private String roman;
-    private String word;
+    private List<TranslationSenseDTO> translationSenses;
 }

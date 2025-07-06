@@ -75,6 +75,6 @@ public class DatabaseService {
             return List.of();
         }
 
-        return translationEntities.stream().map(translationMapper::entityToDto).toList();
+        return translationMapper.groupEntitiesToDto(translationEntities);
     }
 }
