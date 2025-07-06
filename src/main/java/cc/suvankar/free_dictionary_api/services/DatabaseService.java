@@ -3,6 +3,7 @@ package cc.suvankar.free_dictionary_api.services;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,9 @@ public class DatabaseService {
     private final WordEntryRepository wordEntryRepository;
     private final WordEntryMapper wordEntryMapper;
     private final TranslationMapper translationMapper;
+
+    @Value("${spring.profiles.active:}")
+    private String activeProfile;
 
     public DatabaseService(WordEntryRepository wordEntryRepository, WordEntryMapper wordEntryMapper,
             TranslationMapper translationMapper) {
@@ -65,7 +69,14 @@ public class DatabaseService {
         if (filter == null) {
             filter = "";
         }
-        return wordEntryRepository.findWordsByPrefixIgnoreCase(filter, limit);
+        String pattern;
+        if ("docker".equals(activeProfile)) {
+            pattern = "^" + filter + "[a-z]*$";
+        } else {
+            pattern = filter;
+        }
+        List<String> words = wordEntryRepository.findWordsByPrefixIgnoreCase(pattern, limit);
+        return words;
     }
 
     @Cacheable(value = "TranslationsByWordAndPos", key = "#word + '_' + #pos")
