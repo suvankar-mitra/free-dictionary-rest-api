@@ -16,6 +16,7 @@ import cc.suvankar.free_dictionary_api.dto.TranslationDTO;
 import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
 import cc.suvankar.free_dictionary_api.services.DatabaseService;
 import cc.suvankar.free_dictionary_api.services.OffensiveTermsProvider;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/dictionaryapi/v1")
@@ -32,10 +33,19 @@ public class WordEntryRestController {
 
     @GetMapping("/definitions/en/{word}")
     public ResponseEntity<WordEntryDTO> getDefinitions(
-            @PathVariable String word) {
+            @PathVariable String word,
+            HttpServletRequest request) {
         if (word == null || word.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
+
+        // Log each request with IP
+        String clientIp = request.getHeader("X-Forwarded-For");
+        String userAgent = request.getHeader("User-Agent");
+        if (clientIp == null) {
+            clientIp = request.getRemoteAddr();
+        }
+        LOG.info("Request for word '" + word + "' from IP: " + clientIp + ", userAgent:" + userAgent);
 
         // Check for offensive terms
         if (offensiveTermsProvider.isOffensive(word)) {
@@ -54,11 +64,20 @@ public class WordEntryRestController {
     public ResponseEntity<List<String>> getWordsStartingWith(
             @RequestParam("filter") String filter,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            HttpServletRequest request) {
 
         if (filter == null || filter.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
+
+        // Log each request with IP
+        String clientIp = request.getHeader("X-Forwarded-For");
+        String userAgent = request.getHeader("User-Agent");
+        if (clientIp == null) {
+            clientIp = request.getRemoteAddr();
+        }
+        LOG.info("Request for filter '" + filter + "' from IP: " + clientIp + ", userAgent:" + userAgent);
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -68,10 +87,19 @@ public class WordEntryRestController {
     }
 
     @GetMapping("/translations/en/")
-    public ResponseEntity<List<TranslationDTO>> getTranslations(@RequestParam("word") String word,
-            @RequestParam("pos") String pos) {
+    public ResponseEntity<List<TranslationDTO>> getTranslations(
+            @RequestParam("word") String word,
+            @RequestParam("pos") String pos,
+            HttpServletRequest request) {
 
-        LOG.info("Getting translations for " + word + ", " + pos);
+        // Log each request with IP
+        String clientIp = request.getHeader("X-Forwarded-For");
+        String userAgent = request.getHeader("User-Agent");
+        if (clientIp == null) {
+            clientIp = request.getRemoteAddr();
+        }
+        LOG.info("Request for translation for word '" + word + "|" + pos + "' from IP: " + clientIp + ", userAgent:"
+                + userAgent);
         List<TranslationDTO> translationDTOs = databaseService.getWordTransaltions(word, pos);
         LOG.info("Found " + translationDTOs.size() + " translations for " + word + ", " + pos);
 
