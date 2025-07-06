@@ -29,7 +29,9 @@ public interface WordEntryRepository extends JpaRepository<WordEntryEntity, Long
     @Query("SELECT DISTINCT w.word FROM WordEntryEntity w WHERE w.word LIKE CONCAT(:prefix, '%')")
     List<String> findWordsByPrefix(String prefix, Pageable pageable);
 
-    @Query("SELECT DISTINCT w.word FROM WordEntryEntity w WHERE LOWER(w.word) LIKE CONCAT(LOWER(:prefix), '%') ORDER BY w.word")
+    // This method will not be called from here in prod, check
+    // WordEntryRepositoryPostgres class
+    @Query("SELECT DISTINCT w.word FROM WordEntryEntity w WHERE LOWER(w.word) LIKE CONCAT(LOWER(:prefix), '%') AND LOWER(w.word) NOT LIKE '% %' ORDER BY w.word")
     List<String> findWordsByPrefixIgnoreCase(String prefix, Pageable pageable);
 
     @Query("""
