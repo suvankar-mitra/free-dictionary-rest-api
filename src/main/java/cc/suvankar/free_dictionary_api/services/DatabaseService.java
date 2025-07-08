@@ -72,6 +72,9 @@ public class DatabaseService {
         String pattern;
         if ("docker".equals(activeProfile)) {
             pattern = "^" + filter + "[a-z]*$";
+            if (filter.contains(" ")) {
+                pattern = "^" + filter + "[a-z ]*$";
+            }
         } else {
             pattern = filter;
         }
