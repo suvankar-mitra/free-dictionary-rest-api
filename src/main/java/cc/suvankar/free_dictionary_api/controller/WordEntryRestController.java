@@ -55,7 +55,14 @@ public class WordEntryRestController {
         WordEntryDTO definition = databaseService
                 .getWordEntryByWord(word, "en");
         if (definition == null) {
-            return ResponseEntity.notFound().build();
+            // Give another try with a normalized word
+            String normalizedWord = word.trim().toLowerCase();
+            definition = databaseService.getWordEntryByWord(normalizedWord, "en");
+
+            if (definition == null) {
+                LOG.info("No definition found for word: " + word);
+                return ResponseEntity.notFound().build();
+            }
         }
         return ResponseEntity.ok(definition);
     }
