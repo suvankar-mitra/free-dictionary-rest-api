@@ -37,6 +37,3 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update #create-drop
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
