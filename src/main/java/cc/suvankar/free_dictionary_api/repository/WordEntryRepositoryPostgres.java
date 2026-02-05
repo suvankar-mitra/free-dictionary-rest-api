@@ -14,5 +14,6 @@ import org.springframework.stereotype.Repository;
 @Profile("docker")
 public interface WordEntryRepositoryPostgres extends WordEntryRepository {
     @Query(value = "SELECT DISTINCT w.word FROM word_entry w WHERE w.word ~* :pattern ORDER BY w.word", nativeQuery = true)
+    @Override
     List<String> findWordsByPrefixIgnoreCase(@Param("pattern") String pattern, Pageable pageable);
 }

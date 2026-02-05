@@ -1,6 +1,7 @@
 package cc.suvankar.free_dictionary_api.services;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -48,11 +49,11 @@ public class DatabaseService {
 
         List<WordEntryEntity> entities = wordEntryRepository.findByWordAndLangCode(normalizedWord, langCode);
         if (entities.isEmpty()) {
-            LOG.info("No WordEntries found for word: " + normalizedWord);
+            LOG.log(Level.INFO, "No WordEntries found for word: {0}", normalizedWord);
             return null;
         }
 
-        LOG.info("Found " + entities.size() + " WordEntries for word: " + normalizedWord);
+        LOG.log(Level.INFO, "Found {0} WordEntries for word: {1}", new Object[]{entities.size(), normalizedWord});
         return wordEntryMapper.entityToDto(normalizedWord, langCode, entities);
     }
 
