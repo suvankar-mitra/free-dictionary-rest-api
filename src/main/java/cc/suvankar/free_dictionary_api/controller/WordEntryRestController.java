@@ -1,6 +1,7 @@
 package cc.suvankar.free_dictionary_api.controller;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cc.suvankar.free_dictionary_api.dto.ErrorResponseDTO;
 import cc.suvankar.free_dictionary_api.dto.TranslationDTO;
+import cc.suvankar.free_dictionary_api.dto.WordEntryCompactDTO;
 import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
+import cc.suvankar.free_dictionary_api.mapper.WordEntryCompactMapper;
 import cc.suvankar.free_dictionary_api.services.DatabaseService;
 import cc.suvankar.free_dictionary_api.services.OffensiveTermsProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,15 +30,20 @@ public class WordEntryRestController {
 
     private final DatabaseService databaseService;
     private final OffensiveTermsProvider offensiveTermsProvider;
+    private final WordEntryCompactMapper compactMapper;
 
-    public WordEntryRestController(DatabaseService databaseService, OffensiveTermsProvider offensiveTermsProvider) {
+    public WordEntryRestController(DatabaseService databaseService, 
+                OffensiveTermsProvider offensiveTermsProvider,
+                WordEntryCompactMapper compactMapper) {
         this.databaseService = databaseService;
         this.offensiveTermsProvider = offensiveTermsProvider;
+        this.compactMapper = compactMapper;
     }
 
     @GetMapping("/definitions/en/{word}")
     public ResponseEntity<?> getDefinitions(
             @PathVariable String word,
+            @RequestParam(value = "compact", defaultValue = "false") boolean compact,
             HttpServletRequest request) {
         if (word == null || word.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
@@ -47,7 +55,7 @@ public class WordEntryRestController {
         if (clientIp == null) {
             clientIp = request.getRemoteAddr();
         }
-        LOG.info("Request for word '" + word + "' from IP: " + clientIp + ", userAgent:" + userAgent);
+        LOG.info(String.format("Request for word '%s' from IP: %s, userAgent: %s", word, clientIp, userAgent));
 
         // Check for offensive terms
         if (offensiveTermsProvider.isOffensive(word)) {
@@ -64,12 +72,24 @@ public class WordEntryRestController {
             definition = databaseService.getWordEntryByWord(normalizedWord, "en");
 
             if (definition == null) {
-                LOG.info("No definition found for word: " + word);
+                LOG.info(String.format("No definition found for word: %s", word));
                 ErrorResponseDTO err = new ErrorResponseDTO(HttpStatus.NOT_FOUND.value(), "Not Found",
                         "No definition found for word: " + word, request.getRequestURI(), word, null);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
             }
         }
+
+        if (compact) {
+            WordEntryCompactDTO compactDef = compactMapper.makeWordDefinitionCompact(definition);
+            if (compactDef == null) {
+                LOG.info(String.format("No definition found for word: %s", word));
+                ErrorResponseDTO err = new ErrorResponseDTO(HttpStatus.NOT_FOUND.value(), "Not Found",
+                        "No definition found for word: " + word, request.getRequestURI(), word, null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
+            }
+            return ResponseEntity.ok(compactDef);
+        }
+
         return ResponseEntity.ok(definition);
     }
 
@@ -90,7 +110,7 @@ public class WordEntryRestController {
         if (clientIp == null) {
             clientIp = request.getRemoteAddr();
         }
-        LOG.info("Request for filter '" + filter + "' from IP: " + clientIp + ", userAgent:" + userAgent);
+        LOG.log(Level.INFO,"Request for filter '{0}' from IP: {1}, userAgent:{2}", new Object[]{filter, clientIp, userAgent});
 
         Pageable pageable = PageRequest.of(page, size);
 
@@ -111,10 +131,9 @@ public class WordEntryRestController {
         if (clientIp == null) {
             clientIp = request.getRemoteAddr();
         }
-        LOG.info("Request for translation for word '" + word + "|" + pos + "' from IP: " + clientIp + ", userAgent:"
-                + userAgent);
+        LOG.log(Level.INFO,"Request for translation for word '{0}' | {1} from IP: {2}, userAgent: {3}", new Object[]{word, pos, clientIp, userAgent});
         List<TranslationDTO> translationDTOs = databaseService.getWordTransaltions(word, pos);
-        LOG.info("Found " + translationDTOs.size() + " translations for " + word + ", " + pos);
+        LOG.log(Level.INFO, "Found {0} translations for {1}, {2}", new Object[]{translationDTOs.size(), word, pos});
 
         if (translationDTOs.isEmpty()) {
             return ResponseEntity.noContent().build();
