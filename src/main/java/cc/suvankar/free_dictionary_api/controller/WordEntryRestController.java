@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cc.suvankar.free_dictionary_api.dto.ErrorResponseDTO;
 import cc.suvankar.free_dictionary_api.dto.TranslationDTO;
 import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
 import cc.suvankar.free_dictionary_api.services.DatabaseService;
@@ -32,7 +34,7 @@ public class WordEntryRestController {
     }
 
     @GetMapping("/definitions/en/{word}")
-    public ResponseEntity<WordEntryDTO> getDefinitions(
+    public ResponseEntity<?> getDefinitions(
             @PathVariable String word,
             HttpServletRequest request) {
         if (word == null || word.trim().isEmpty()) {
@@ -49,7 +51,9 @@ public class WordEntryRestController {
 
         // Check for offensive terms
         if (offensiveTermsProvider.isOffensive(word)) {
-            return ResponseEntity.notFound().build();
+            ErrorResponseDTO err = new ErrorResponseDTO(HttpStatus.NOT_FOUND.value(), "Not Found",
+                    "No definition found for word: " + word, request.getRequestURI(), word, null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
         }
 
         WordEntryDTO definition = databaseService
@@ -61,7 +65,9 @@ public class WordEntryRestController {
 
             if (definition == null) {
                 LOG.info("No definition found for word: " + word);
-                return ResponseEntity.notFound().build();
+                ErrorResponseDTO err = new ErrorResponseDTO(HttpStatus.NOT_FOUND.value(), "Not Found",
+                        "No definition found for word: " + word, request.getRequestURI(), word, null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
             }
         }
         return ResponseEntity.ok(definition);
