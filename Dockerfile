@@ -1,5 +1,9 @@
 # Use a minimal official OpenJDK image
-FROM eclipse-temurin:17-jre
+FROM openjdk:17-jdk-slim
+
+# Set timezone to IST
+ENV TZ=Asia/Kolkata
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Create a non-root user
 RUN useradd -ms /bin/bash springuser
