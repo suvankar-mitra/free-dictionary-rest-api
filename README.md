@@ -35,6 +35,13 @@ https://api.suvankar.cc
 Full endpoint documentation:
 - [API Endpoints](endpoints.md)
 
+## Data Source Note
+
+The dictionary data is sourced from Wiktionary.
+
+This repository contains the API layer only.  
+The data ingestion and processing pipeline that imports Wiktionary data into the database is maintained separately and is not part of this repository.
+
 
 ## License
 
