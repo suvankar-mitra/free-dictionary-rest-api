@@ -39,7 +39,7 @@ Full endpoint documentation:
 ## License
 
 CC BY-SA 4.0 (same as Wiktionary). Attribution required.
-See [LICENSE](LICENSE) for details.
+See [LICENSE](LICENSE.md) for details.
 
 ---
 
