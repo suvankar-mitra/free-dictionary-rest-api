@@ -5,6 +5,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -22,6 +24,8 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class RateLimitFilter implements Filter {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
+
+    private static final Logger LOG = Logger.getLogger(RateLimitFilter.class.getName());
 
     private Bucket resolveBucket(String clientIp) {
         return buckets.computeIfAbsent(clientIp, k -> Bucket.builder()
@@ -82,6 +86,12 @@ public class RateLimitFilter implements Filter {
                 setRateLimitHeaders(httpResponse, bucket, 5);
                 httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 response.getWriter().write("Too Many Requests");
+                
+                String userAgent = ((HttpServletRequest)request).getHeader("User-Agent");
+                if (clientIp == null) {
+                    clientIp = request.getRemoteAddr();
+                }
+                LOG.log(Level.INFO,"Too many requests= from IP: {1}, userAgent:{2}", new Object[]{clientIp, userAgent});
             }
             return;
         }
@@ -109,6 +119,12 @@ public class RateLimitFilter implements Filter {
                 setRateLimitHeaders(httpResponse, bucket, 30);
                 httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 response.getWriter().write("Too Many Requests");
+
+                String userAgent = ((HttpServletRequest)request).getHeader("User-Agent");
+                if (clientIp == null) {
+                    clientIp = request.getRemoteAddr();
+                }
+                LOG.log(Level.INFO,"Too many requests= from IP: {1}, userAgent:{2}", new Object[]{clientIp, userAgent});
             }
             return;
         }
