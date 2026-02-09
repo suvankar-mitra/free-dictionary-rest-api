@@ -39,4 +39,4 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update #create-drop
+      ddl-auto: validate #create-drop
