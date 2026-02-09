@@ -11,9 +11,12 @@ spring:
       host: redis
       port: 6379
 
-# Change the application port
+# Docker profile:
+# Services must bind to 0.0.0.0 to be reachable from other containers.
+# Binding to localhost will cause "Connection refused" errors from the gateway.
 server:
   port: 8800
+  address: 0.0.0.0  # DO NOT CHANGE
 
 json:
   data:
