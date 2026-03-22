@@ -42,11 +42,16 @@ The dictionary data is sourced from Wiktionary.
 This repository contains the API layer only.  
 The data ingestion and processing pipeline that imports Wiktionary data into the database is maintained separately and is not part of this repository.
 
+## Licensing
 
-## License
+**Code:** Licensed under the [Apache License 2.0](LICENSE.md).  
+You are free to use, modify, and redistribute the code with attribution.
 
-CC BY-SA 4.0 (same as Wiktionary). Attribution required.
-See [LICENSE](LICENSE.md) for details.
+**Data:** The dictionary data is sourced from [Wiktionary](https://en.wiktionary.org)  
+and is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).  
+Any redistribution of the data must comply with CC BY-SA 4.0 terms.
+
+Copyright 2026 Suvankar Mitra
 
 ---
 
