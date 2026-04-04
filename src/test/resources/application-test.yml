@@ -11,6 +11,6 @@ spring:
   jpa:
     # database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: update #create-drop
+      ddl-auto: create-drop
   cache:
     type: simple

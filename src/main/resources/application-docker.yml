@@ -6,6 +6,9 @@ spring:
     open-in-view: false
   cache:
     type: redis
+    redis:
+      time-to-live: 3600000   # 1 hour (milliseconds)
+      cache-null-values: false
   data:
     redis:
       host: redis
