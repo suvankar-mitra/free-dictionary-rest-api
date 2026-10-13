@@ -38,7 +38,11 @@ public class DatabaseService {
     }
 
     @Transactional
-    @Cacheable(value = "wordEntries", key = "#word + '_' + #langCode")
+    @Cacheable(
+        value = "wordEntries",
+        key = "#word + '_' + #langCode",
+        unless = "#result == null"
+    )
     public WordEntryDTO getWordEntryByWord(final String word, final String langCode) {
         if (word == null || word.isEmpty()) {
             LOG.warning("Attempted to retrieve WordEntryDTO with a null or empty word");
