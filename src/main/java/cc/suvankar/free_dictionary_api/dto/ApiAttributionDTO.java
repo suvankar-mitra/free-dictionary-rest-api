@@ -21,7 +21,7 @@ public class ApiAttributionDTO implements Serializable {
 
     private ApiAttributionDTO() {
         this.name = "free-dictionary-rest-api";
-        this.url = "api.suvankar.cc";
+        this.url = "https://api.suvankar.cc";
         this.license = "CC BY-SA 4.0";
         this.attributionRequired = true;
         this.attributionText = "Data provided by Wiktionary (https://en.wiktionary.org) and aggregated by free-dictionary-rest-api (https://api.suvankar.cc), licensed under CC BY-SA 4.0";
