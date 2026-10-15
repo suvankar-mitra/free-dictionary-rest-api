@@ -17,7 +17,7 @@ echo "Building the application JAR..."
 ./mvnw clean package
 
 # Step 2: Check if the JAR file was created
-JAR_FILE=$(ls target | grep 'SNAPSHOT.jar$' | head -n 1)
+JAR_FILE=$(ls target | grep 'free-dictionary-rest-api.*.jar$' | head -n 1)
 if [ -z "$JAR_FILE" ]; then
   echo "Error: No JAR file found in target directory."
   exit 1
