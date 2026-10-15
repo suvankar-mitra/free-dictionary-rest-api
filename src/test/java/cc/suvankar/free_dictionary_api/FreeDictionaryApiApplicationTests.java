@@ -1,8 +1,5 @@
 package cc.suvankar.free_dictionary_api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +12,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import cc.suvankar.free_dictionary_api.dto.ErrorResponseDTO;
 import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @ActiveProfiles("test")
@@ -152,5 +151,43 @@ class FreeDictionaryApiApplicationTests {
 		assertTrue(response.getHeaders().containsKey("X-RateLimit-Limit"), "Should contain X-RateLimit-Limit header");
 		assertTrue(response.getHeaders().containsKey("X-RateLimit-Remaining"),
 				"Should contain X-RateLimit-Remaining header");
+	}
+
+
+	@Test
+	void testUnicodeMathematicalBoldWordIsNormalized() {
+		String word = "𝐌𝐚𝐦𝐦𝐚𝐥𝐬";
+		String url = "/dictionaryapi/v1/definitions/en/" + word;
+
+		ResponseEntity<String> response =
+				restTemplate.getForEntity(url, String.class);
+
+		assertNotEquals(
+				400,
+				response.getStatusCode().value(),
+				"Unicode mathematical bold word should be normalized, not rejected as invalid input");
+	}
+
+	@Test
+	void testWordExceedingMaximumLengthReturnsBadRequest() {
+		String word = "a".repeat(101);
+		String url = "/dictionaryapi/v1/definitions/en/" + word;
+
+		ResponseEntity<ErrorResponseDTO> response =
+				restTemplate.getForEntity(url, ErrorResponseDTO.class);
+
+		assertEquals(
+				400,
+				response.getStatusCode().value(),
+				"Words exceeding the maximum length should return HTTP 400");
+
+		ErrorResponseDTO body = response.getBody();
+
+		assertNotNull(body, "Error response body should not be null");
+		assertEquals(400, body.getStatus());
+		assertEquals("Bad Request", body.getError());
+		assertTrue(
+				body.getMessage().contains("100 characters"),
+				"Error message should specify the maximum word length");
 	}
 }

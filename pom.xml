@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>cc.suvankar</groupId>
 	<artifactId>free-dictionary-rest-api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>free-dictionary-rest-api</name>
 	<description>Dictionary API</description>
 	<properties>

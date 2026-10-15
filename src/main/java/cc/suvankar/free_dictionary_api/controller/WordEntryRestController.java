@@ -1,6 +1,7 @@
 package cc.suvankar.free_dictionary_api.controller;
 
-import java.util.List;
+import java.text.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +33,8 @@ public class WordEntryRestController {
     private final OffensiveTermsProvider offensiveTermsProvider;
     private final WordEntryCompactMapper compactMapper;
 
+    private static final int MAX_WORD_LENGTH = 100;
+
     public WordEntryRestController(DatabaseService databaseService, 
                 OffensiveTermsProvider offensiveTermsProvider,
                 WordEntryCompactMapper compactMapper) {
@@ -42,51 +45,90 @@ public class WordEntryRestController {
 
     @GetMapping("/definitions/en/{word}")
     public ResponseEntity<?> getDefinitions(
-            @PathVariable String word,
-            @RequestParam(value = "compact", defaultValue = "false") boolean compact,
-            HttpServletRequest request) {
-        if (word == null || word.trim().isEmpty()) {
+        @PathVariable String word,
+        @RequestParam(value = "compact", defaultValue = "false") boolean compact,
+        HttpServletRequest request) {
+
+        String normalizedWord = normalizeWord(word);
+
+        if (normalizedWord == null || normalizedWord.isEmpty()) {
             return ResponseEntity.badRequest().build();
+        }
+
+        // Reject excessively long input before any database lookup.
+        int wordLength = normalizedWord.codePointCount(
+            0, normalizedWord.length());
+
+        if (wordLength > MAX_WORD_LENGTH) {
+            ErrorResponseDTO err = new ErrorResponseDTO(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                "Word must not exceed " + MAX_WORD_LENGTH + " characters",
+                request.getRequestURI(),
+                word,
+                null);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
         }
 
         // Log each request with IP
         String clientIp = request.getHeader("X-Forwarded-For");
         String userAgent = request.getHeader("User-Agent");
+
         if (clientIp == null) {
             clientIp = request.getRemoteAddr();
         }
-        LOG.info(String.format("Request for word '%s' from IP: %s, userAgent: %s", word, clientIp, userAgent));
 
-        // Check for offensive terms
-        if (offensiveTermsProvider.isOffensive(word)) {
-            ErrorResponseDTO err = new ErrorResponseDTO(HttpStatus.NOT_FOUND.value(), "Not Found",
-                    "No definition found for word: " + word, request.getRequestURI(), word, null);
+        LOG.info(String.format(
+            "Request for word '%s' (normalized: '%s') from IP: %s, userAgent: %s",
+            word, normalizedWord, clientIp, userAgent));
+
+        // Check for offensive terms after normalization
+        if (offensiveTermsProvider.isOffensive(normalizedWord)) {
+            ErrorResponseDTO err = new ErrorResponseDTO(
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                "No definition found for word: " + word,
+                request.getRequestURI(),
+                word,
+                null);
+
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
         }
 
-        WordEntryDTO definition = databaseService
-                .getWordEntryByWord(word, "en");
-        if (definition == null) {
-            // Give another try with a normalized word
-            String normalizedWord = word.trim().toLowerCase();
-            definition = databaseService.getWordEntryByWord(normalizedWord, "en");
+        WordEntryDTO definition =
+            databaseService.getWordEntryByWord(normalizedWord, "en");
 
-            if (definition == null) {
-                LOG.info(String.format("No definition found for word: %s", word));
-                ErrorResponseDTO err = new ErrorResponseDTO(HttpStatus.NOT_FOUND.value(), "Not Found",
-                        "No definition found for word: " + word, request.getRequestURI(), word, null);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
-            }
+        if (definition == null) {
+            LOG.info("No definition found for word: " + normalizedWord);
+
+            ErrorResponseDTO err = new ErrorResponseDTO(
+                HttpStatus.NOT_FOUND.value(),
+                "Not Found",
+                "No definition found for word: " + word,
+                request.getRequestURI(),
+                word,
+                null);
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
         }
 
         if (compact) {
-            WordEntryCompactDTO compactDef = compactMapper.makeWordDefinitionCompact(definition);
+            WordEntryCompactDTO compactDef =
+                compactMapper.makeWordDefinitionCompact(definition);
+
             if (compactDef == null) {
-                LOG.info(String.format("No definition found for word: %s", word));
-                ErrorResponseDTO err = new ErrorResponseDTO(HttpStatus.NOT_FOUND.value(), "Not Found",
-                        "No definition found for word: " + word, request.getRequestURI(), word, null);
+                ErrorResponseDTO err = new ErrorResponseDTO(
+                    HttpStatus.NOT_FOUND.value(),
+                    "Not Found",
+                    "No definition found for word: " + word,
+                    request.getRequestURI(),
+                    word,
+                    null);
+
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
             }
+
             return ResponseEntity.ok(compactDef);
         }
 
@@ -139,5 +181,15 @@ public class WordEntryRestController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(translationDTOs);
+    }
+
+    public static String normalizeWord(String word) {
+        if (word == null) {
+            return null;
+        }
+
+        return Normalizer.normalize(word, Normalizer.Form.NFKC)
+            .toLowerCase(Locale.ROOT)
+            .strip();
     }
 }
