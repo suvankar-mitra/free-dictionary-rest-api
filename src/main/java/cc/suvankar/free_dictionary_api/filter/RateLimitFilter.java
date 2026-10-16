@@ -91,7 +91,11 @@ public class RateLimitFilter implements Filter {
                 if (clientIp == null) {
                     clientIp = request.getRemoteAddr();
                 }
-                LOG.log(Level.INFO,"Too many requests= from IP: {1}, userAgent:{2}", new Object[]{clientIp, userAgent});
+                LOG.log(
+                    Level.WARNING,
+                    "Too many requests from IP: {0}, userAgent: {1}",
+                    new Object[]{clientIp, userAgent}
+                );
             }
             return;
         }
