@@ -1,5 +1,5 @@
 # Use a minimal official OpenJDK image
-FROM azul/zulu-openjdk:17
+FROM azul/zulu-openjdk:21
 
 # Set timezone to IST
 ENV TZ=Asia/Kolkata

@@ -13,6 +13,9 @@ spring:
     redis:
       host: redis
       port: 6379
+  threads:
+    virtual:
+      enabled: true
 
 # Docker profile:
 # Services must bind to 0.0.0.0 to be reachable from other containers.

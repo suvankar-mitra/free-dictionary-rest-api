@@ -9,6 +9,9 @@ spring:
       enabled: true  # Disable H2 console in production
   cache:
     type: simple # OR redis, then start redis in docker:  docker run -p 6379:6379 redis
+  threads:
+    virtual:
+      enabled: true
 
 # Change the application port
 server:
