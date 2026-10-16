@@ -33,3 +33,6 @@ build/
 .vscode/
 
 logs
+
+### MACOS ###
+.DS_Store
