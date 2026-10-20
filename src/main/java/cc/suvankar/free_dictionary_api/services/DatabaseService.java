@@ -17,7 +17,7 @@ import cc.suvankar.free_dictionary_api.entity.WordEntryEntity;
 import cc.suvankar.free_dictionary_api.mapper.TranslationMapper;
 import cc.suvankar.free_dictionary_api.mapper.WordEntryMapper;
 import cc.suvankar.free_dictionary_api.repository.WordEntryRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.*;
 
 @Service
 public class DatabaseService {
@@ -37,7 +37,7 @@ public class DatabaseService {
         this.translationMapper = translationMapper;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Cacheable(
         value = "wordEntries",
         key = "#word + '_' + #langCode",
@@ -69,7 +69,11 @@ public class DatabaseService {
         return wordEntryRepository.count();
     }
 
-    @Cacheable(value = "wordsStartingWith", key = "#filter + '_' + #limit.pageNumber + '_' + #limit.pageSize")
+    @Cacheable(
+        value = "wordsStartingWith",
+        key = "#filter + '_' + #limit.pageNumber + '_' + #limit.pageSize",
+        unless = "#result == null"
+    )
     public List<String> getWordsStartingWith(String filter, Pageable limit) {
         if (filter == null) {
             filter = "";
@@ -87,8 +91,12 @@ public class DatabaseService {
         return words;
     }
 
-    @Cacheable(value = "TranslationsByWordAndPos", key = "#word + '_' + #pos")
-    public List<TranslationDTO> getWordTransaltions(String word, String pos) {
+    @Cacheable(
+        value = "TranslationsByWordAndPos",
+        key = "#word + '_' + #pos",
+        unless = "#result == null"
+    )
+    public List<TranslationDTO> getWordTranslations(String word, String pos) {
         List<TranslationEntity> translationEntities = wordEntryRepository.getTranslationsByWordAndPos(word, pos);
         if (translationEntities.isEmpty()) {
             return List.of();

@@ -174,7 +174,7 @@ public class WordEntryRestController {
             clientIp = request.getRemoteAddr();
         }
         LOG.log(Level.INFO,"Request for translation for word '{0}' | {1} from IP: {2}, userAgent: {3}", new Object[]{word, pos, clientIp, userAgent});
-        List<TranslationDTO> translationDTOs = databaseService.getWordTransaltions(word, pos);
+        List<TranslationDTO> translationDTOs = databaseService.getWordTranslations(word, pos);
         LOG.log(Level.INFO, "Found {0} translations for {1}, {2}", new Object[]{translationDTOs.size(), word, pos});
 
         if (translationDTOs.isEmpty()) {
