@@ -45,14 +45,46 @@ public class DatabaseService {
 
     final String normalizedWord = word.trim();
 
-    List<WordEntryEntity> entities = wordEntryRepository.findByWordAndLangCode(normalizedWord, langCode);
+//    List<WordEntryEntity> entities = wordEntryRepository.findByWordAndLangCode(normalizedWord, langCode);
+//    if (entities.isEmpty()) {
+//      //LOG.log(Level.INFO, "No WordEntries found for word: {0}", normalizedWord);
+//      return null;
+//    }
+//
+//    LOG.log(Level.INFO, "Found {0} WordEntries for word: {1}", new Object[]{entities.size(), normalizedWord});
+//    return wordEntryMapper.entityToDto(normalizedWord, langCode, entities);
+
+    long queryStart = System.nanoTime();
+
+    List<WordEntryEntity> entities =
+        wordEntryRepository.findByWordAndLangCode(normalizedWord, langCode);
+
+    long queryEnd = System.nanoTime();
+
+    LOG.info(String.format(
+        "PERF word=%s repositoryQuery=%.3fms",
+        normalizedWord,
+        (queryEnd - queryStart) / 1_000_000.0
+    ));
+
     if (entities.isEmpty()) {
-      //LOG.log(Level.INFO, "No WordEntries found for word: {0}", normalizedWord);
       return null;
     }
 
-    LOG.log(Level.INFO, "Found {0} WordEntries for word: {1}", new Object[]{entities.size(), normalizedWord});
-    return wordEntryMapper.entityToDto(normalizedWord, langCode, entities);
+    long mappingStart = System.nanoTime();
+
+    WordEntryDTO dto =
+        wordEntryMapper.entityToDto(normalizedWord, langCode, entities);
+
+    long mappingEnd = System.nanoTime();
+
+    LOG.info(String.format(
+        "PERF word=%s entityToDto=%.3fms",
+        normalizedWord,
+        (mappingEnd - mappingStart) / 1_000_000.0
+    ));
+
+    return dto;
   }
 
   public Page<String> getWordsPaginated(Pageable pageable) {

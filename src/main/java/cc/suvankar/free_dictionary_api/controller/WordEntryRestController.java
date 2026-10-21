@@ -112,8 +112,21 @@ public class WordEntryRestController {
     }
 
     if (compact) {
+//      WordEntryCompactDTO compactDef =
+//          compactMapper.makeWordDefinitionCompact(definition);
+
+      long compactStart = System.nanoTime();
+
       WordEntryCompactDTO compactDef =
           compactMapper.makeWordDefinitionCompact(definition);
+
+      long compactEnd = System.nanoTime();
+
+      LOG.info(String.format(
+          "PERF word=%s compactMapping=%.3fms",
+          normalizedWord,
+          (compactEnd - compactStart) / 1_000_000.0
+      ));
 
       if (compactDef == null) {
         ErrorResponseDTO err = new ErrorResponseDTO(
