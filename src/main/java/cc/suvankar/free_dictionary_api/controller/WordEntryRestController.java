@@ -42,7 +42,15 @@ public class WordEntryRestController {
     String normalizedWord = normalizeWord(word);
 
     if (normalizedWord == null || normalizedWord.isEmpty()) {
-      return ResponseEntity.badRequest().build();
+      ErrorResponseDTO err = new ErrorResponseDTO(
+          HttpStatus.BAD_REQUEST.value(),
+          "Bad Request",
+          "Word must not be blank",
+          request.getRequestURI(),
+          word,
+          null);
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 
     // Reject excessively long input before any database lookup.
@@ -126,19 +134,35 @@ public class WordEntryRestController {
   }
 
   @GetMapping("/words/en/")
-  public ResponseEntity<List<String>> getWordsStartingWith(
+  public ResponseEntity<?> getWordsStartingWith(
       @RequestParam("filter") String filter,
       @RequestParam(value = "page", defaultValue = "0") String pageParam,
       @RequestParam(value = "size", defaultValue = "10") String sizeParam,
       HttpServletRequest request) {
 
     if (filter == null || filter.isBlank()) {
-      return ResponseEntity.badRequest().build();
+      ErrorResponseDTO err = new ErrorResponseDTO(
+          HttpStatus.BAD_REQUEST.value(),
+          "Bad Request",
+          "Filter must not be blank",
+          request.getRequestURI(),
+          filter,
+          null);
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 
     filter = normalizeWord(filter);
     if (filter.length() > 50) { // Prevent overly long input strings
-      return ResponseEntity.badRequest().build();
+      ErrorResponseDTO err = new ErrorResponseDTO(
+          HttpStatus.BAD_REQUEST.value(),
+          "Bad Request",
+          "Filter must not exceed 50 characters",
+          request.getRequestURI(),
+          filter,
+          null);
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 
     int page = 0;
@@ -172,20 +196,46 @@ public class WordEntryRestController {
   }
 
   @GetMapping("/translations/en/")
-  public ResponseEntity<List<TranslationDTO>> getTranslations(
+  public ResponseEntity<?> getTranslations(
       @RequestParam("word") String word,
       @RequestParam("pos") String pos,
       HttpServletRequest request) {
 
     if (word == null || word.isBlank() || pos == null || pos.isBlank()) {
-      return ResponseEntity.badRequest().build();
+      String invalidInput = (word == null || word.isBlank()) ? word : pos;
+      String message = (word == null || word.isBlank())
+          ? "Word must not be blank"
+          : "Part of speech (pos) must not be blank";
+
+      ErrorResponseDTO err = new ErrorResponseDTO(
+          HttpStatus.BAD_REQUEST.value(),
+          "Bad Request",
+          message,
+          request.getRequestURI(),
+          invalidInput,
+          null);
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 
     word = normalizeWord(word);
     pos = pos.trim().toLowerCase(Locale.ROOT);
 
     if (word.length() > 50 || pos.length() > 20) {
-      return ResponseEntity.badRequest().build();
+      String invalidInput = word.length() > 50 ? word : pos;
+      String message = word.length() > 50
+          ? "Word must not exceed 50 characters"
+          : "Part of speech (pos) must not exceed 20 characters";
+
+      ErrorResponseDTO err = new ErrorResponseDTO(
+          HttpStatus.BAD_REQUEST.value(),
+          "Bad Request",
+          message,
+          request.getRequestURI(),
+          invalidInput,
+          null);
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
     }
 
     // Log each request with IP
