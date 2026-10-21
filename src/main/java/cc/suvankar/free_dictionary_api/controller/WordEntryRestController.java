@@ -127,9 +127,11 @@ public class WordEntryRestController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
       }
 
+      LOG.info(String.format("Returning compact definition for: %s", normalizedWord));
       return ResponseEntity.ok(compactDef);
     }
 
+    LOG.info(String.format("Returning definition for: %s", normalizedWord));
     return ResponseEntity.ok(definition);
   }
 
