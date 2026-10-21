@@ -4,6 +4,9 @@ spring:
     name: free-dictionary-rest-api
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 32
   cache:
     type: redis
     redis:
