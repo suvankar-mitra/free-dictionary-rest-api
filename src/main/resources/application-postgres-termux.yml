@@ -1,0 +1,48 @@
+# Free Dictionary API Configuration
+spring:
+  application:
+    name: free-dictionary-rest-api
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 32
+  cache:
+    type: simple
+  threads:
+    virtual:
+      enabled: true
+
+# Docker profile:
+# Services must bind to 0.0.0.0 to be reachable from other containers.
+# Binding to localhost will cause "Connection refused" errors from the gateway.
+server:
+  port: 8800
+  address: 0.0.0.0  # DO NOT CHANGE
+
+json:
+  data:
+    dir: ${JSON_DATA_DIR:./data}  # Directory for JSON data files
+
+# Logging configuration
+logging:
+  config: classpath:logback-spring.xml
+
+---
+# Postgres profile-specific properties
+spring:
+  config:
+    activate:
+      on-profile: postgres-termux
+  datasource:
+    url: jdbc:postgresql://${SPRING_DATASOURCE_HOST}:${SPRING_DATASOURCE_PORT}/${SPRING_DATASOURCE_DB}
+    driverClassName: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+    # Enable Hikari leak detection temporarily
+    hikari:
+      leak-detection-threshold: 20000
+  jpa:
+    hibernate:
+      ddl-auto: validate #create-drop
