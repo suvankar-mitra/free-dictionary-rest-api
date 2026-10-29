@@ -36,3 +36,5 @@ logs
 
 ### MACOS ###
 .DS_Store
+
+.env
