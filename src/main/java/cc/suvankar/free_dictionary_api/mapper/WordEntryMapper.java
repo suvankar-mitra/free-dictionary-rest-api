@@ -14,6 +14,7 @@ import cc.suvankar.free_dictionary_api.dto.SoundDTO;
 import cc.suvankar.free_dictionary_api.dto.SourceAttributionDTO;
 import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
 import cc.suvankar.free_dictionary_api.entity.SenseEntity;
+import cc.suvankar.free_dictionary_api.entity.SoundEntity;
 import cc.suvankar.free_dictionary_api.entity.WordEntryEntity;
 
 @Component
@@ -117,37 +118,31 @@ public class WordEntryMapper {
 
                 dto.setMeanings(new HashSet<>(meaningMap.values()));
 
-                // get first IPA
-                String ipa = entities.stream().filter(entity -> entity.getSounds() != null)
-                                .flatMap(entity -> entity.getSounds().stream())
-                                .filter(sound -> sound != null && sound.getIpa() != null && !sound.getIpa().isEmpty())
-                                .map(sound -> sound.getIpa())
-                                .findFirst()
-                                .orElse(null);
-                dto.setIpa(ipa);
+                // Collect all sounds across all word entries.
+                List<SoundEntity> allSounds = entities.stream()
+                        .filter(entity -> entity.getSounds() != null)
+                        .flatMap(entity -> entity.getSounds().stream())
+                        .filter(java.util.Objects::nonNull)
+                        .toList();
 
-                // get first Audio URL
-                String audioUrl = entities.stream().filter(entity -> entity.getSounds() != null)
-                                .flatMap(entity -> entity.getSounds().stream())
-                                .filter(sound -> sound != null && sound.getMp3Url() != null
-                                                && !sound.getMp3Url().isEmpty())
-                                .map(sound -> sound.getMp3Url())
-                                .findFirst()
-                                .orElseGet(() -> entities.stream().filter(entity -> entity.getSounds() != null)
-                                                .flatMap(entity -> entity.getSounds().stream())
-                                                .filter(sound -> sound != null && sound.getOggUrl() != null
-                                                                && !sound.getOggUrl().isEmpty())
-                                                .map(sound -> sound.getOggUrl())
-                                                .findFirst()
-                                                .orElse(null));
-                dto.setAudioUrl(audioUrl);
+                // Select one primary pronunciation, combining IPA and audio if necessary.
+                List<SoundDTO> selectedSounds = SoundMapper.entityToDtoList(allSounds);
 
-                // Collect all sounds from all entities and convert them to DTOs
-                Set<SoundDTO> sounds = new HashSet<>();
-                entities.stream()
-                                .filter(entity -> entity.getSounds() != null)
-                                .forEach(entity -> sounds.addAll(SoundMapper.entityToDtoList(entity.getSounds())));
-                dto.setSounds(sounds);
+                if (!selectedSounds.isEmpty()) {
+                        SoundDTO primarySound = selectedSounds.get(0);
+
+                        dto.setIpa(primarySound.getIpa());
+
+                        String audioUrl = primarySound.getMp3Url() != null
+                                        && !primarySound.getMp3Url().isBlank()
+                                ? primarySound.getMp3Url()
+                                : primarySound.getOggUrl();
+
+                        dto.setAudioUrl(audioUrl);
+                }
+
+                // Expose only the selected sound instead of remapping each entry separately.
+                dto.setSounds(new HashSet<>(selectedSounds));
 
                 return dto;
         }
