@@ -1,7 +1,7 @@
 package cc.suvankar.free_dictionary_api.mapper;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +41,7 @@ public class WordEntryMapper {
                 dto.setAttribute(SourceAttributionDTO.getInstance());
 
                 // Using a map to ensure unique partOfSpeech per meaning
-                Map<String, MeaningDTO> meaningMap = new HashMap<>();
+                Map<String, MeaningDTO> meaningMap = new LinkedHashMap<>();
 
                 for (WordEntryEntity entity : entities) {
                         String pos = entity.getPos().trim().toLowerCase();
@@ -51,9 +51,9 @@ public class WordEntryMapper {
                                 meaning = new MeaningDTO();
                                 meaning.setPartOfSpeech(pos);
                                 meaning.setEtymologyText(entity.getEtymologyText());
-                                meaning.setSynonyms(new HashSet<>());
-                                meaning.setAntonyms(new HashSet<>());
-                                meaning.setSenses(new HashSet<>());
+                                meaning.setSynonyms(new LinkedHashSet<>());
+                                meaning.setAntonyms(new LinkedHashSet<>());
+                                meaning.setSenses(new LinkedHashSet<>());
                                 meaningMap.put(pos, meaning);
                         } else {
                                 if (meaning.getEtymologyText() == null && entity.getEtymologyText() != null) {
@@ -66,7 +66,7 @@ public class WordEntryMapper {
                         meaning.getAntonyms().addAll(antonymMapper.entityToStringList(entity.getAntonyms()));
 
                         // Using a map to ensure unique gloss + tags
-                        Map<String, SenseDTO> senseMap = new HashMap<>();
+                        Map<String, SenseDTO> senseMap = new LinkedHashMap<>();
 
                         if (entity.getSenses() != null) {
                                 for (SenseEntity senseEntity : entity.getSenses()) {
@@ -81,13 +81,13 @@ public class WordEntryMapper {
                                                         SenseDTO sense = senseMap.get(key);
                                                         if (sense == null) {
                                                                 sense = new SenseDTO();
-                                                                sense.setGlosses(new HashSet<>());
+                                                                sense.setGlosses(new LinkedHashSet<>());
                                                                 sense.setTags(senseEntity.getTags() == null ? Set.of()
-                                                                                : new HashSet<>(senseEntity.getTags()));
-                                                                sense.setRelated(new HashSet<>());
-                                                                sense.setSynonyms(new HashSet<>());
-                                                                sense.setAntonyms(new HashSet<>());
-                                                                sense.setExamples(new HashSet<>());
+                                                                                : new LinkedHashSet<>(senseEntity.getTags()));
+                                                                sense.setRelated(new LinkedHashSet<>());
+                                                                sense.setSynonyms(new LinkedHashSet<>());
+                                                                sense.setAntonyms(new LinkedHashSet<>());
+                                                                sense.setExamples(new LinkedHashSet<>());
                                                                 senseMap.put(key, sense);
                                                         }
                                                         sense.getGlosses().add(gloss);
@@ -116,7 +116,7 @@ public class WordEntryMapper {
                         meaning.getSenses().addAll(senseMap.values());
                 }
 
-                dto.setMeanings(new HashSet<>(meaningMap.values()));
+                dto.setMeanings(new LinkedHashSet<>(meaningMap.values()));
 
                 // Collect all sounds across all word entries.
                 List<SoundEntity> allSounds = entities.stream()
@@ -142,7 +142,7 @@ public class WordEntryMapper {
                 }
 
                 // Expose only the selected sound instead of remapping each entry separately.
-                dto.setSounds(new HashSet<>(selectedSounds));
+                dto.setSounds(new LinkedHashSet<>(selectedSounds));
 
                 return dto;
         }

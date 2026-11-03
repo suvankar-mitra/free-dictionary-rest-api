@@ -45,7 +45,9 @@ public class DatabaseService {
 
     final String normalizedWord = word.trim();
 
-    List<WordEntryEntity> entities = wordEntryRepository.findByWordAndLangCode(normalizedWord, langCode);
+    List<WordEntryEntity> entities = 
+      wordEntryRepository.findByWordAndLangCodeOrderBySourceFileAscSourceLineNumberAsc(normalizedWord, langCode);
+
     if (entities.isEmpty()) {
       //LOG.log(Level.INFO, "No WordEntries found for word: {0}", normalizedWord);
       return null;

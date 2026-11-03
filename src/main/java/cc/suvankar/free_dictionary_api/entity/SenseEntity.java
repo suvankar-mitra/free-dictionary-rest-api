@@ -73,4 +73,7 @@ public class SenseEntity {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "sense_id")
     private List<SenseSynonymEntity> senseSynonyms;
+
+    @Column(name = "sense_order")
+    private Integer senseOrder;
 }

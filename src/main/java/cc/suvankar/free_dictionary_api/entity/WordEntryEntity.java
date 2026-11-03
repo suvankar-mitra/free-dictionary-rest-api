@@ -57,8 +57,11 @@ public class WordEntryEntity {
     @ElementCollection(fetch = FetchType.LAZY)
     private List<String> wikipedia;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(
+        fetch = FetchType.LAZY
+    )
     @JoinColumn(name = "word_entry_id")
+    @OrderBy("senseOrder ASC")
     private List<SenseEntity> senses;
 
     private String dtoChecksum;
@@ -66,4 +69,10 @@ public class WordEntryEntity {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastModified;
+
+    @Column(name = "source_file")
+    private String sourceFile;
+
+    @Column(name = "source_line_number")
+    private Long sourceLineNumber;
 }
