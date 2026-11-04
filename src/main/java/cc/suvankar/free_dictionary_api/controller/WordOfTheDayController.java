@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
+import cc.suvankar.free_dictionary_api.dto.WordOfTheDayDTO;
+import cc.suvankar.free_dictionary_api.mapper.WordOfTheDayMapper;
 import cc.suvankar.free_dictionary_api.services.DatabaseService;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -21,9 +23,11 @@ public class WordOfTheDayController {
     private static final Logger LOG = Logger.getLogger(WordOfTheDayController.class.getName());
 
     private final DatabaseService databaseService;
+    private final WordOfTheDayMapper wordOfTheDayMapper;
 
-    public WordOfTheDayController(DatabaseService databaseService) {
+    public WordOfTheDayController(DatabaseService databaseService, WordOfTheDayMapper wordOfTheDayMapper) {
         this.databaseService = databaseService;
+        this.wordOfTheDayMapper = wordOfTheDayMapper;
     }
 
     private final List<String> wordsOfTheDay = List.of(
@@ -36,13 +40,13 @@ public class WordOfTheDayController {
             "less", "healing", "free", "boundaries", "creativity", "heart", "light", "perspective", "connect",
             "spirit", "harmony", "action", "exploration", "contentment", "glow", "healing", "thoughtful", "soar",
             "calm", "transformation", "peace", "movement", "inspire", "breathe", "flourish", "create", "believe",
-            "grace", "possibility", "self love", "delight", "connection", "acceptance", "integrity", "reflect",
+            "grace", "possibility", "delight", "connection", "acceptance", "integrity", "reflect",
             "thrive", "strength", "persevere", "listen", "embrace", "commit", "bloom", "grounded", "pause",
             "stillness", "meaningful", "brave", "appreciate", "renew", "clarity", "grow", "present", "vulnerability",
             "build", "shine", "streamline");
 
     @GetMapping("/wordoftheday")
-    public ResponseEntity<WordEntryDTO> getWordOfTheDay(HttpServletRequest request) {
+    public ResponseEntity<WordOfTheDayDTO> getWordOfTheDay(HttpServletRequest request) {
 
         // Log each request with IP
         String clientIp = request.getHeader("X-Forwarded-For");
@@ -61,8 +65,10 @@ public class WordOfTheDayController {
             return ResponseEntity.notFound().build();
         }
 
+        WordOfTheDayDTO wordOfTheDayDTO = wordOfTheDayMapper.wordEntryToWordOfTheDayDTO(definition);
+
         // Return the word of the day definition
-        return ResponseEntity.ok(definition);
+        return ResponseEntity.ok(wordOfTheDayDTO);
 
     }
 
