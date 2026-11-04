@@ -1,5 +1,9 @@
 package cc.suvankar.free_dictionary_api;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import cc.suvankar.free_dictionary_api.dto.ErrorResponseDTO;
+import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,184 +14,193 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
-import cc.suvankar.free_dictionary_api.dto.ErrorResponseDTO;
-import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class FreeDictionaryApiApplicationTests {
 
-	@Autowired
-	private TestRestTemplate restTemplate;
+  @Autowired private TestRestTemplate restTemplate;
 
-	@Test
-	void testGettingWord() {
-		// mock test controller
-		String word = "dictionary";
-		String url = "/dictionaryapi/v1/definitions/en/" + word;
+  @Test
+  void testGettingWord() {
+    // mock test controller
+    String word = "dictionary";
+    String url = "/dictionaryapi/v1/definitions/en/" + word;
 
-		ResponseEntity<WordEntryDTO> response = restTemplate.getForEntity(url, WordEntryDTO.class);
+    ResponseEntity<WordEntryDTO> response = restTemplate.getForEntity(url, WordEntryDTO.class);
 
-		assertEquals(404, response.getStatusCode().value(), "Should return HTTP 404");
-	}
+    assertEquals(404, response.getStatusCode().value(), "Should return HTTP 404");
+  }
 
-	@Test
-	void testRateLimitHeadersOnDefinitions() {
-		String word = "test";
-		String url = "/dictionaryapi/v1/definitions/en/" + word;
+  @Test
+  void testRateLimitHeadersOnDefinitions() {
+    String word = "test";
+    String url = "/dictionaryapi/v1/definitions/en/" + word;
 
-		ResponseEntity<WordEntryDTO> response = restTemplate.getForEntity(url, WordEntryDTO.class);
+    ResponseEntity<WordEntryDTO> response = restTemplate.getForEntity(url, WordEntryDTO.class);
 
-		// Check for rate limit headers
-		assertTrue(response.getHeaders().containsKey("X-RateLimit-Limit"), "Should contain X-RateLimit-Limit header");
-		assertTrue(response.getHeaders().containsKey("X-RateLimit-Remaining"),
-				"Should contain X-RateLimit-Remaining header");
-		assertTrue(response.getHeaders().containsKey("X-RateLimit-Reset"), "Should contain X-RateLimit-Reset header");
+    // Check for rate limit headers
+    assertTrue(
+        response.getHeaders().containsKey("X-RateLimit-Limit"),
+        "Should contain X-RateLimit-Limit header");
+    assertTrue(
+        response.getHeaders().containsKey("X-RateLimit-Remaining"),
+        "Should contain X-RateLimit-Remaining header");
+    assertTrue(
+        response.getHeaders().containsKey("X-RateLimit-Reset"),
+        "Should contain X-RateLimit-Reset header");
 
-		// Verify limit is 30 for definitions endpoint
-		String limitHeader = response.getHeaders().getFirst("X-RateLimit-Limit");
-		assertEquals("30", limitHeader, "Definition endpoint limit should be 30");
-	}
+    // Verify limit is 30 for definitions endpoint
+    String limitHeader = response.getHeaders().getFirst("X-RateLimit-Limit");
+    assertEquals("30", limitHeader, "Definition endpoint limit should be 30");
+  }
 
-	@Test
-	void testRateLimitHeadersOnWordOfTheDay() {
-		String url = "/dictionaryapi/v1/wordoftheday";
+  @Test
+  void testRateLimitHeadersOnWordOfTheDay() {
+    String url = "/dictionaryapi/v1/wordoftheday";
 
-		ResponseEntity<WordEntryDTO> response = restTemplate.getForEntity(url, WordEntryDTO.class);
+    ResponseEntity<WordEntryDTO> response = restTemplate.getForEntity(url, WordEntryDTO.class);
 
-		// Check for rate limit headers
-		assertTrue(response.getHeaders().containsKey("X-RateLimit-Limit"), "Should contain X-RateLimit-Limit header");
-		assertTrue(response.getHeaders().containsKey("X-RateLimit-Remaining"),
-				"Should contain X-RateLimit-Remaining header");
-		assertTrue(response.getHeaders().containsKey("X-RateLimit-Reset"), "Should contain X-RateLimit-Reset header");
+    // Check for rate limit headers
+    assertTrue(
+        response.getHeaders().containsKey("X-RateLimit-Limit"),
+        "Should contain X-RateLimit-Limit header");
+    assertTrue(
+        response.getHeaders().containsKey("X-RateLimit-Remaining"),
+        "Should contain X-RateLimit-Remaining header");
+    assertTrue(
+        response.getHeaders().containsKey("X-RateLimit-Reset"),
+        "Should contain X-RateLimit-Reset header");
 
-		// Verify limit is 5 for word-of-the-day endpoint
-		String limitHeader = response.getHeaders().getFirst("X-RateLimit-Limit");
-		assertEquals("5", limitHeader, "Word-of-the-day endpoint limit should be 5");
-	}
+    // Verify limit is 5 for word-of-the-day endpoint
+    String limitHeader = response.getHeaders().getFirst("X-RateLimit-Limit");
+    assertEquals("5", limitHeader, "Word-of-the-day endpoint limit should be 5");
+  }
 
-	@Test
-	void testRateLimitRemainingDecreases() {
-		String word = "apple";
-		String url = "/dictionaryapi/v1/definitions/en/" + word;
+  @Test
+  void testRateLimitRemainingDecreases() {
+    String word = "apple";
+    String url = "/dictionaryapi/v1/definitions/en/" + word;
 
-		// First request
-		ResponseEntity<WordEntryDTO> response1 = restTemplate.getForEntity(url, WordEntryDTO.class);
-		String remaining1 = response1.getHeaders().getFirst("X-RateLimit-Remaining");
-		assertNotNull(remaining1, "First response should have X-RateLimit-Remaining");
+    // First request
+    ResponseEntity<WordEntryDTO> response1 = restTemplate.getForEntity(url, WordEntryDTO.class);
+    String remaining1 = response1.getHeaders().getFirst("X-RateLimit-Remaining");
+    assertNotNull(remaining1, "First response should have X-RateLimit-Remaining");
 
-		// Second request
-		ResponseEntity<WordEntryDTO> response2 = restTemplate.getForEntity(url, WordEntryDTO.class);
-		String remaining2 = response2.getHeaders().getFirst("X-RateLimit-Remaining");
-		assertNotNull(remaining2, "Second response should have X-RateLimit-Remaining");
+    // Second request
+    ResponseEntity<WordEntryDTO> response2 = restTemplate.getForEntity(url, WordEntryDTO.class);
+    String remaining2 = response2.getHeaders().getFirst("X-RateLimit-Remaining");
+    assertNotNull(remaining2, "Second response should have X-RateLimit-Remaining");
 
-		int rem1 = Integer.parseInt(remaining1);
-		int rem2 = Integer.parseInt(remaining2);
-		assertTrue(rem2 <= rem1, "Remaining requests should decrease or stay same after request");
-	}
+    int rem1 = Integer.parseInt(remaining1);
+    int rem2 = Integer.parseInt(remaining2);
+    assertTrue(rem2 <= rem1, "Remaining requests should decrease or stay same after request");
+  }
 
-	@Test
-	void testWordNotFoundReturnsErrorResponse() {
-		String nonexistentWord = "xyznonexistentwordxyz12345";
-		String url = "/dictionaryapi/v1/definitions/en/" + nonexistentWord;
+  @Test
+  void testWordNotFoundReturnsErrorResponse() {
+    String nonexistentWord = "xyznonexistentwordxyz12345";
+    String url = "/dictionaryapi/v1/definitions/en/" + nonexistentWord;
 
-		ResponseEntity<ErrorResponseDTO> response = restTemplate.getForEntity(url, ErrorResponseDTO.class);
+    ResponseEntity<ErrorResponseDTO> response =
+        restTemplate.getForEntity(url, ErrorResponseDTO.class);
 
-		assertEquals(404, response.getStatusCode().value(), "Should return HTTP 404 for non-existent word");
-		
-		ErrorResponseDTO body = response.getBody();
-		assertNotNull(body, "Response body should not be null");
-		assertEquals(404, body.getStatus(), "Status in response should be 404");
-		assertEquals("Not Found", body.getError(), "Error field should be 'Not Found'");
-		assertTrue(body.getMessage().contains("No definition found"), "Message should indicate no definition found");
-		assertEquals(nonexistentWord, body.getRequestedWord(), "requestedWord should match the requested word");
-	}
+    assertEquals(
+        404, response.getStatusCode().value(), "Should return HTTP 404 for non-existent word");
 
-	@Test
-	void testRateLimitResetTimeIsValid() {
-		String url = "/dictionaryapi/v1/wordoftheday";
+    ErrorResponseDTO body = response.getBody();
+    assertNotNull(body, "Response body should not be null");
+    assertEquals(404, body.getStatus(), "Status in response should be 404");
+    assertEquals("Not Found", body.getError(), "Error field should be 'Not Found'");
+    assertTrue(
+        body.getMessage().contains("No definition found"),
+        "Message should indicate no definition found");
+    assertEquals(
+        nonexistentWord, body.getRequestedWord(), "requestedWord should match the requested word");
+  }
 
-		ResponseEntity<WordEntryDTO> response = restTemplate.getForEntity(url, WordEntryDTO.class);
+  @Test
+  void testRateLimitResetTimeIsValid() {
+    String url = "/dictionaryapi/v1/wordoftheday";
 
-		String resetTime = response.getHeaders().getFirst("X-RateLimit-Reset");
-		assertNotNull(resetTime, "X-RateLimit-Reset header should be present");
+    ResponseEntity<WordEntryDTO> response = restTemplate.getForEntity(url, WordEntryDTO.class);
 
-		long resetEpoch = Long.parseLong(resetTime);
-		long nowEpoch = System.currentTimeMillis() / 1000;
+    String resetTime = response.getHeaders().getFirst("X-RateLimit-Reset");
+    assertNotNull(resetTime, "X-RateLimit-Reset header should be present");
 
-		// Reset time should be approximately 60 seconds from now
-		long diff = resetEpoch - nowEpoch;
-		assertTrue(diff >= 59 && diff <= 61, "Reset time should be approximately 60 seconds from now");
-	}
+    long resetEpoch = Long.parseLong(resetTime);
+    long nowEpoch = System.currentTimeMillis() / 1000;
 
-	@Test
-	void testEmptyWordParameterReturnsBadRequest() {
-		String url = "/dictionaryapi/v1/definitions/en/";
+    // Reset time should be approximately 60 seconds from now
+    long diff = resetEpoch - nowEpoch;
+    assertTrue(diff >= 59 && diff <= 61, "Reset time should be approximately 60 seconds from now");
+  }
 
-		ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+  @Test
+  void testEmptyWordParameterReturnsBadRequest() {
+    String url = "/dictionaryapi/v1/definitions/en/";
 
-		assertEquals(404, response.getStatusCode().value(), "Should return HTTP 404 for empty word");
-	}
+    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
-	@Test
-	void testMultipleRequestsWithCustomHeader() {
-		String word = "hello";
-		String url = "/dictionaryapi/v1/definitions/en/" + word;
+    assertEquals(404, response.getStatusCode().value(), "Should return HTTP 404 for empty word");
+  }
 
-		// Create request with custom header
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("X-Forwarded-For", "192.168.1.1");
+  @Test
+  void testMultipleRequestsWithCustomHeader() {
+    String word = "hello";
+    String url = "/dictionaryapi/v1/definitions/en/" + word;
 
-		HttpEntity<String> entity = new HttpEntity<>(headers);
+    // Create request with custom header
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("X-Forwarded-For", "192.168.1.1");
 
-		// Make request with custom headers
-		ResponseEntity<WordEntryDTO> response = restTemplate.exchange(url, HttpMethod.GET, entity,
-				WordEntryDTO.class);
+    HttpEntity<String> entity = new HttpEntity<>(headers);
 
-		// Should still have rate limit headers
-		assertTrue(response.getHeaders().containsKey("X-RateLimit-Limit"), "Should contain X-RateLimit-Limit header");
-		assertTrue(response.getHeaders().containsKey("X-RateLimit-Remaining"),
-				"Should contain X-RateLimit-Remaining header");
-	}
+    // Make request with custom headers
+    ResponseEntity<WordEntryDTO> response =
+        restTemplate.exchange(url, HttpMethod.GET, entity, WordEntryDTO.class);
 
+    // Should still have rate limit headers
+    assertTrue(
+        response.getHeaders().containsKey("X-RateLimit-Limit"),
+        "Should contain X-RateLimit-Limit header");
+    assertTrue(
+        response.getHeaders().containsKey("X-RateLimit-Remaining"),
+        "Should contain X-RateLimit-Remaining header");
+  }
 
-	@Test
-	void testUnicodeMathematicalBoldWordIsNormalized() {
-		String word = "𝐌𝐚𝐦𝐦𝐚𝐥𝐬";
-		String url = "/dictionaryapi/v1/definitions/en/" + word;
+  @Test
+  void testUnicodeMathematicalBoldWordIsNormalized() {
+    String word = "𝐌𝐚𝐦𝐦𝐚𝐥𝐬";
+    String url = "/dictionaryapi/v1/definitions/en/" + word;
 
-		ResponseEntity<String> response =
-				restTemplate.getForEntity(url, String.class);
+    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
-		assertNotEquals(
-				400,
-				response.getStatusCode().value(),
-				"Unicode mathematical bold word should be normalized, not rejected as invalid input");
-	}
+    assertNotEquals(
+        400,
+        response.getStatusCode().value(),
+        "Unicode mathematical bold word should be normalized, not rejected as invalid input");
+  }
 
-	@Test
-	void testWordExceedingMaximumLengthReturnsBadRequest() {
-		String word = "a".repeat(101);
-		String url = "/dictionaryapi/v1/definitions/en/" + word;
+  @Test
+  void testWordExceedingMaximumLengthReturnsBadRequest() {
+    String word = "a".repeat(101);
+    String url = "/dictionaryapi/v1/definitions/en/" + word;
 
-		ResponseEntity<ErrorResponseDTO> response =
-				restTemplate.getForEntity(url, ErrorResponseDTO.class);
+    ResponseEntity<ErrorResponseDTO> response =
+        restTemplate.getForEntity(url, ErrorResponseDTO.class);
 
-		assertEquals(
-				400,
-				response.getStatusCode().value(),
-				"Words exceeding the maximum length should return HTTP 400");
+    assertEquals(
+        400,
+        response.getStatusCode().value(),
+        "Words exceeding the maximum length should return HTTP 400");
 
-		ErrorResponseDTO body = response.getBody();
+    ErrorResponseDTO body = response.getBody();
 
-		assertNotNull(body, "Error response body should not be null");
-		assertEquals(400, body.getStatus());
-		assertEquals("Bad Request", body.getError());
-		assertTrue(
-				body.getMessage().contains("100 characters"),
-				"Error message should specify the maximum word length");
-	}
+    assertNotNull(body, "Error response body should not be null");
+    assertEquals(400, body.getStatus());
+    assertEquals("Bad Request", body.getError());
+    assertTrue(
+        body.getMessage().contains("100 characters"),
+        "Error message should specify the maximum word length");
+  }
 }

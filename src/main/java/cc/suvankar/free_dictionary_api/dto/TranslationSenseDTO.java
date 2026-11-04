@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TranslationSenseDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String sense;
-    private String roman;
-    private String word;
+  private String sense;
+  private String roman;
+  private String word;
 }

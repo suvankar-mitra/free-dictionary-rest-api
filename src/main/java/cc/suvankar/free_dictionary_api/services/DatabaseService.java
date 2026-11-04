@@ -4,14 +4,13 @@ import cc.suvankar.free_dictionary_api.dto.*;
 import cc.suvankar.free_dictionary_api.entity.*;
 import cc.suvankar.free_dictionary_api.mapper.*;
 import cc.suvankar.free_dictionary_api.repository.*;
+import java.util.*;
+import java.util.logging.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.cache.annotation.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 import org.springframework.transaction.annotation.*;
-
-import java.util.*;
-import java.util.logging.*;
 
 @Service
 public class DatabaseService {
@@ -24,19 +23,17 @@ public class DatabaseService {
   @Value("${spring.profiles.active:}")
   private String activeProfile;
 
-  public DatabaseService(WordEntryRepository wordEntryRepository, WordEntryMapper wordEntryMapper,
-                         TranslationMapper translationMapper) {
+  public DatabaseService(
+      WordEntryRepository wordEntryRepository,
+      WordEntryMapper wordEntryMapper,
+      TranslationMapper translationMapper) {
     this.wordEntryRepository = wordEntryRepository;
     this.wordEntryMapper = wordEntryMapper;
     this.translationMapper = translationMapper;
   }
 
   @Transactional(readOnly = true)
-  @Cacheable(
-      value = "wordEntries",
-      key = "#word + '_' + #langCode",
-      unless = "#result == null"
-  )
+  @Cacheable(value = "wordEntries", key = "#word + '_' + #langCode", unless = "#result == null")
   public WordEntryDTO getWordEntryByWord(final String word, final String langCode) {
     if (word == null || word.isEmpty()) {
       LOG.warning("Attempted to retrieve WordEntryDTO with a null or empty word");
@@ -45,15 +42,19 @@ public class DatabaseService {
 
     final String normalizedWord = word.trim();
 
-    List<WordEntryEntity> entities = 
-      wordEntryRepository.findByWordAndLangCodeOrderBySourceFileAscSourceLineNumberAsc(normalizedWord, langCode);
+    List<WordEntryEntity> entities =
+        wordEntryRepository.findByWordAndLangCodeOrderBySourceFileAscSourceLineNumberAsc(
+            normalizedWord, langCode);
 
     if (entities.isEmpty()) {
-      //LOG.log(Level.INFO, "No WordEntries found for word: {0}", normalizedWord);
+      // LOG.log(Level.INFO, "No WordEntries found for word: {0}", normalizedWord);
       return null;
     }
 
-    LOG.log(Level.INFO, "Found {0} WordEntries for word: {1}", new Object[]{entities.size(), normalizedWord});
+    LOG.log(
+        Level.INFO,
+        "Found {0} WordEntries for word: {1}",
+        new Object[] {entities.size(), normalizedWord});
     return wordEntryMapper.entityToDto(normalizedWord, langCode, entities);
   }
 
@@ -68,8 +69,7 @@ public class DatabaseService {
   @Cacheable(
       value = "wordsStartingWith",
       key = "#filter + '_' + #limit.pageNumber + '_' + #limit.pageSize",
-      unless = "#result == null"
-  )
+      unless = "#result == null")
   public List<String> getWordsStartingWith(String filter, Pageable limit) {
     if (filter == null) {
       filter = "";
@@ -90,10 +90,10 @@ public class DatabaseService {
   @Cacheable(
       value = "TranslationsByWordAndPos",
       key = "#word + '_' + #pos",
-      unless = "#result == null"
-  )
+      unless = "#result == null")
   public List<TranslationDTO> getWordTranslations(String word, String pos) {
-    List<TranslationEntity> translationEntities = wordEntryRepository.getTranslationsByWordAndPos(word, pos);
+    List<TranslationEntity> translationEntities =
+        wordEntryRepository.getTranslationsByWordAndPos(word, pos);
     if (translationEntities.isEmpty()) {
       return List.of();
     }

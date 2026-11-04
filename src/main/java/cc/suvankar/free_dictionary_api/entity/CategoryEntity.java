@@ -20,19 +20,19 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String name;
-    private String kind;
+  private String name;
+  private String kind;
 
-    @Column(columnDefinition = "TEXT")
-    private String parentsJson;
+  @Column(columnDefinition = "TEXT")
+  private String parentsJson;
 
-    private String source;
-    private String orig;
-    private String langcode;
+  private String source;
+  private String orig;
+  private String langcode;
 
-    private String dis;
+  private String dis;
 }

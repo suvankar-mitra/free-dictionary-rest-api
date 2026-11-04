@@ -20,15 +20,15 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EtymologyTemplateEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String name;
+  private String name;
 
-    @Column(columnDefinition = "TEXT")
-    private String argsJson;
+  @Column(columnDefinition = "TEXT")
+  private String argsJson;
 
-    @Column(columnDefinition = "TEXT")
-    private String expansion;
+  @Column(columnDefinition = "TEXT")
+  private String expansion;
 }

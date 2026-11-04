@@ -20,14 +20,14 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HeadTemplateEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String name;
+  private String name;
 
-    @Column(columnDefinition = "TEXT")
-    private String argsJson;
+  @Column(columnDefinition = "TEXT")
+  private String argsJson;
 
-    private String expansion;
+  private String expansion;
 }

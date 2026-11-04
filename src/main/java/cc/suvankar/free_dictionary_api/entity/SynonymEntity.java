@@ -19,9 +19,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SynonymEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String word;
+  private String word;
 }

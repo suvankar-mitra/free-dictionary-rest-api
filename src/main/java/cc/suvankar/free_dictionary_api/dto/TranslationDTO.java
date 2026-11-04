@@ -1,10 +1,8 @@
 package cc.suvankar.free_dictionary_api.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,9 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class TranslationDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private String lang;
-    private String code;
-    private List<TranslationSenseDTO> translationSenses;
+  private String lang;
+  private String code;
+  private List<TranslationSenseDTO> translationSenses;
 }

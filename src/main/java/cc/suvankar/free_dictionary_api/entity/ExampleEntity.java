@@ -20,18 +20,18 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExampleEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(columnDefinition = "TEXT")
-    private String text;
+  @Column(columnDefinition = "TEXT")
+  private String text;
 
-    @Column(columnDefinition = "TEXT")
-    private String ref;
+  @Column(columnDefinition = "TEXT")
+  private String ref;
 
-    private String type;
+  private String type;
 
-    @Column(columnDefinition = "TEXT")
-    private String boldTextOffsetsJson;
+  @Column(columnDefinition = "TEXT")
+  private String boldTextOffsetsJson;
 }

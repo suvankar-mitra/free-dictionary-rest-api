@@ -10,8 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = "cc.suvankar.free_dictionary_api.repository")
 public class FreeDictionaryApiApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(FreeDictionaryApiApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(FreeDictionaryApiApplication.class, args);
+  }
 }
