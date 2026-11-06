@@ -1,15 +1,13 @@
 package cc.suvankar.free_dictionary_api.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import java.io.Serializable;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.*;
+import java.io.*;
+import lombok.*;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class SourceAttributionDTO implements Serializable {
   private static final long serialVersionUID = 1L;
-
-  private static final SourceAttributionDTO INSTANCE = new SourceAttributionDTO();
 
   private final String source;
   private final String sourceUrl;
@@ -17,15 +15,21 @@ public class SourceAttributionDTO implements Serializable {
   private final String note;
   private final ApiAttributionDTO api;
 
-  private SourceAttributionDTO() {
-    this.source = "Wiktionary";
-    this.sourceUrl = "https://en.wiktionary.org";
-    this.sourceLicense = "CC BY-SA 4.0";
-    this.note = "Includes processed content from Wiktionary, used under CC BY-SA 4.0.";
-    this.api = ApiAttributionDTO.getInstance();
+  public SourceAttributionDTO(
+      String source, String sourceUrl, String sourceLicense, String note, ApiAttributionDTO api) {
+    this.source = source;
+    this.sourceUrl = sourceUrl;
+    this.sourceLicense = sourceLicense;
+    this.note = note;
+    this.api = api;
   }
 
-  public static SourceAttributionDTO getInstance() {
-    return INSTANCE;
+  public static SourceAttributionDTO forWiktionary(String word) {
+    return new SourceAttributionDTO(
+        "Wiktionary",
+        "https://en.wiktionary.org/wiki/" + word,
+        "CC BY-SA 4.0",
+        "Includes processed content from Wiktionary, used under CC BY-SA 4.0.",
+        ApiAttributionDTO.getInstance());
   }
 }

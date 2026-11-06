@@ -1,19 +1,9 @@
 package cc.suvankar.free_dictionary_api.mapper;
 
-import cc.suvankar.free_dictionary_api.dto.MeaningDTO;
-import cc.suvankar.free_dictionary_api.dto.SenseDTO;
-import cc.suvankar.free_dictionary_api.dto.SoundDTO;
-import cc.suvankar.free_dictionary_api.dto.SourceAttributionDTO;
-import cc.suvankar.free_dictionary_api.dto.WordEntryDTO;
-import cc.suvankar.free_dictionary_api.entity.SenseEntity;
-import cc.suvankar.free_dictionary_api.entity.SoundEntity;
-import cc.suvankar.free_dictionary_api.entity.WordEntryEntity;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.springframework.stereotype.Component;
+import cc.suvankar.free_dictionary_api.dto.*;
+import cc.suvankar.free_dictionary_api.entity.*;
+import java.util.*;
+import org.springframework.stereotype.*;
 
 @Component
 public class WordEntryMapper {
@@ -36,7 +26,7 @@ public class WordEntryMapper {
 
     dto.setWord(word);
     dto.setLang(langCode);
-    dto.setAttribute(SourceAttributionDTO.getInstance());
+    dto.setAttribute(SourceAttributionDTO.forWiktionary(word));
 
     // Using a map to ensure unique partOfSpeech per meaning
     Map<String, MeaningDTO> meaningMap = new LinkedHashMap<>();
