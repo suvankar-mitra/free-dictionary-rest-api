@@ -1,0 +1,18 @@
+FROM container-registry.oracle.com/os/oraclelinux:9-slim
+
+ENV TZ=Asia/Kolkata
+RUN microdnf install -y tzdata shadow-utils \
+    && microdnf clean all
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone
+
+RUN useradd -ms /bin/bash springuser
+WORKDIR /app
+
+COPY --chmod=755 target/free-dictionary-rest-api /app/application
+
+RUN chown -R springuser:springuser /app
+USER springuser
+
+EXPOSE 8800
+ENTRYPOINT ["/app/application"]

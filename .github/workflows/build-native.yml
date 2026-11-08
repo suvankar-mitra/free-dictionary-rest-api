@@ -1,0 +1,38 @@
+name: Build GraalVM Native Container
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-containerize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm'
+
+      - name: Cache Maven Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2-
+
+      - name: Build Native Executable
+        run: ./mvnw clean package -Pnative -DskipTests
+
+      - name: Debug Target Directory
+        run: ls -la target/
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image with Native Dockerfile
+        run: |
+          docker build -f Dockerfile.native -t free-dictionary-rest-api:latest .
