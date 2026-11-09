@@ -3,6 +3,7 @@ name: Build GraalVM Native Container
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-and-containerize:
