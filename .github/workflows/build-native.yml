@@ -25,6 +25,8 @@ jobs:
           restore-keys: ${{ runner.os }}-m2-
 
       - name: Build Native Executable
+        env:
+          SPRING_PROFILES_ACTIVE: docker
         run: ./mvnw clean package -Pnative -DskipTests
 
       - name: Debug Target Directory
