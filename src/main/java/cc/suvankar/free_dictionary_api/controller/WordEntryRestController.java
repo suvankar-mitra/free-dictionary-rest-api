@@ -281,6 +281,6 @@ public class WordEntryRestController {
       return null;
     }
 
-    return Normalizer.normalize(word, Normalizer.Form.NFKC).toLowerCase(Locale.ROOT).strip();
+    return Normalizer.normalize(word, Normalizer.Form.NFKC).strip();
   }
 }
