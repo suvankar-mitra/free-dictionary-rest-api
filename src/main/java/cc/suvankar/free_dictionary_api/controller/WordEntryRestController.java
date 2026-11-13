@@ -193,10 +193,9 @@ public class WordEntryRestController {
     if (clientIp == null) {
       clientIp = request.getRemoteAddr();
     }
-    LOG.log(
-        Level.INFO,
-        "Request for filter '{0}' from IP: {1}, userAgent: {2}",
-        new Object[] {filter, clientIp, userAgent});
+    LOG.info(
+        String.format(
+            "Request for filter '%s' from IP: %s, userAgent: %s", filter, clientIp, userAgent));
 
     Pageable pageable = PageRequest.of(page, size);
     List<String> words = databaseService.getWordsStartingWith(filter, pageable);
