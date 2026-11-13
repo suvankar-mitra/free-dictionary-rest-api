@@ -71,20 +71,14 @@ public class DatabaseService {
       key = "#filter + '_' + #limit.pageNumber + '_' + #limit.pageSize",
       unless = "#result == null")
   public List<String> getWordsStartingWith(String filter, Pageable limit) {
-    if (filter == null) {
-      filter = "";
+
+    if (filter == null || filter.isBlank()) {
+      return List.of();
     }
-    String pattern;
-    if ("docker".equals(activeProfile)) {
-      pattern = "^" + filter + "[a-z]*$";
-      if (filter.contains(" ")) {
-        pattern = "^" + filter + "[a-z ]*$";
-      }
-    } else {
-      pattern = filter;
-    }
-    List<String> words = wordEntryRepository.findWordsByPrefixIgnoreCase(pattern, limit);
-    return words;
+
+    String pattern = filter.trim().toLowerCase(Locale.ROOT) + "%";
+
+    return wordEntryRepository.findWordsByPrefixIgnoreCase(pattern, limit);
   }
 
   @Cacheable(
