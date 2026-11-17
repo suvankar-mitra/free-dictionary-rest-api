@@ -46,7 +46,7 @@ public class SourceAttributionDTO implements Serializable {
     return new SourceAttributionDTO(
         "Wiktionary",
         WIKTIONARY_URL + encodedWord,
-        "Kaikki.org",
+        "https://kaikki.org",
         LICENSE,
         LICENSE_URL,
         "Extracted and processed from Wiktionary via Kaikki.org.");
