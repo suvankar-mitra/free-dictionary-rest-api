@@ -121,7 +121,7 @@ public class WordEntryMapper {
     List<SoundDTO> selectedSounds = SoundMapper.entityToDtoList(allSounds);
 
     if (!selectedSounds.isEmpty()) {
-      SoundDTO primarySound = selectedSounds.get(0);
+      SoundDTO primarySound = selectedSounds.getFirst();
 
       dto.setIpa(primarySound.getIpa());
 
