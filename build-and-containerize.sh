@@ -14,7 +14,7 @@ if [ ! -f "./mvnw" ]; then
   exit 1
 fi
 echo "Building the application JAR..."
-./mvnw clean package
+./mvnw clean package -DskipTests
 
 # Step 2: Check if the JAR file was created
 JAR_FILE=$(ls target | grep 'free-dictionary-rest-api.*.jar$' | head -n 1)

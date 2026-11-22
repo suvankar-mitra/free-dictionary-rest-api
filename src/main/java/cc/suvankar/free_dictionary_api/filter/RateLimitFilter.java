@@ -1,5 +1,7 @@
 package cc.suvankar.free_dictionary_api.filter;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.Filter;
@@ -12,8 +14,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.http.HttpStatus;
@@ -21,12 +21,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RateLimitFilter implements Filter {
-  private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
-
   private static final Logger LOG = Logger.getLogger(RateLimitFilter.class.getName());
 
+  private final Cache<String, Bucket> buckets =
+      Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(2)).build();
+
   private Bucket resolveBucket(String clientIp) {
-    return buckets.computeIfAbsent(
+    return buckets.get(
         clientIp,
         k ->
             Bucket.builder()
@@ -40,7 +41,7 @@ public class RateLimitFilter implements Filter {
 
   private Bucket resolveBucketForWordOfTheDay(String clientIp) {
     String key = clientIp + ":wordoftheday";
-    return buckets.computeIfAbsent(
+    return buckets.get(
         key,
         k ->
             Bucket.builder()
