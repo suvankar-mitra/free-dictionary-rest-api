@@ -11,6 +11,34 @@ public class WordEntryMapper {
   private final SynonymMapper synonymMapper;
   private final AntonymMapper antonymMapper;
 
+  private static final List<String> US_TAG_PRIORITY =
+      List.of(
+          "General-American",
+          "US",
+          "Inland-Northern-American",
+          "Northern-US",
+          "Midwestern-US",
+          "Southern-American-English",
+          "Southern-US",
+          "New-York",
+          "New-York-City",
+          "New-Jersey",
+          "New-England",
+          "Eastern-New-England",
+          "Boston",
+          "Philadelphia",
+          "California",
+          "Northern-California",
+          "Texas",
+          "Louisiana",
+          "Georgia",
+          "Virginia",
+          "Maine",
+          "Hawaii",
+          "Nevada",
+          "Pennsylvania",
+          "Appalachia");
+
   public WordEntryMapper(SynonymMapper synonymMapper, AntonymMapper antonymMapper) {
     this.synonymMapper = synonymMapper;
     this.antonymMapper = antonymMapper;
@@ -121,14 +149,31 @@ public class WordEntryMapper {
     List<SoundDTO> selectedSounds = SoundMapper.entityToDtoList(allSounds);
 
     if (!selectedSounds.isEmpty()) {
+      // Select the primary IPA using the following fallback priority:
+      // 1. Prefer a US-related pronunciation with IPA, respecting US_TAG_PRIORITY.
+      // 2. If no US-related IPA is available, use the first pronunciation with a non-empty IPA.
+      // 3. If no IPA is available at all, fall back to the first pronunciation.
       SoundDTO primarySound =
-          selectedSounds.stream()
-              .filter(
-                  sound ->
-                      sound.getTags() != null
-                          && sound.getTags().stream().anyMatch("US"::equalsIgnoreCase))
+          US_TAG_PRIORITY.stream()
+              .map(
+                  tag ->
+                      selectedSounds.stream()
+                          .filter(
+                              sound ->
+                                  sound.getIpa() != null
+                                      && !sound.getIpa().isBlank()
+                                      && sound.getTags() != null
+                                      && sound.getTags().stream().anyMatch(tag::equalsIgnoreCase))
+                          .findFirst()
+                          .orElse(null))
+              .filter(Objects::nonNull)
               .findFirst()
-              .orElse(selectedSounds.getFirst());
+              .orElseGet(
+                  () ->
+                      selectedSounds.stream()
+                          .filter(sound -> sound.getIpa() != null && !sound.getIpa().isBlank())
+                          .findFirst()
+                          .orElse(selectedSounds.getFirst()));
 
       dto.setIpa(primarySound.getIpa());
 
