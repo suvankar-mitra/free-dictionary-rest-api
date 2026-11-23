@@ -35,6 +35,10 @@ json:
 logging:
   config: classpath:logback-spring.xml
 
+app:
+  rate-limit:
+    enabled: true
+
 ---
 # Postgres profile-specific properties
 spring:

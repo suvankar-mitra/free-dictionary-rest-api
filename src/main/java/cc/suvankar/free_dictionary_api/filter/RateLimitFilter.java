@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,12 +17,16 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RateLimitFilter implements Filter {
   private static final Logger LOG = Logger.getLogger(RateLimitFilter.class.getName());
+
+  @Value("${app.rate-limit.enabled:true}")
+  private boolean rateLimitEnabled;
 
   private final Cache<String, Bucket> buckets =
       Caffeine.newBuilder().expireAfterAccess(Duration.ofMinutes(2)).build();
@@ -65,6 +70,11 @@ public class RateLimitFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
+    if (!rateLimitEnabled) {
+      chain.doFilter(request, response);
+      return;
+    }
+
     HttpServletRequest httpRequest = (HttpServletRequest) request;
 
     String path = httpRequest.getRequestURI();
@@ -143,5 +153,14 @@ public class RateLimitFilter implements Filter {
 
     // For other endpoints
     chain.doFilter(request, response);
+  }
+
+  @PostConstruct
+  public void logRateLimitStatus() {
+    if (rateLimitEnabled) {
+      LOG.info("Rate limiter is ENABLED");
+    } else {
+      LOG.warning("*** RATE LIMITER IS DISABLED ***");
+    }
   }
 }
